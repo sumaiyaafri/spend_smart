@@ -68,7 +68,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Container(
       height: 38,
       padding: const EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: context.outlineColor)),
       child: Row(
         children: [
           IconButton(onPressed: () => setState(() => selectedMonth = DateTime(selectedMonth.year, selectedMonth.month - 1)), icon: const Icon(Icons.chevron_left_rounded, size: 19, color: AppColors.primaryDark)),
@@ -91,7 +91,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F5F3),
+        color: context.mutedSurfaceColor,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -113,7 +113,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
-                    color: selectedTab == index ? Colors.white : AppColors.textSecondary,
+                    color: selectedTab == index ? Colors.white : context.secondaryTextColor,
                   ),
                 ),
               ),
@@ -166,14 +166,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _incomeCard(double monthIncome, double totalIncome, double balance, String currency) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-      child: Column(children: [Row(children: [const Icon(Icons.account_balance_wallet_rounded, size: 16, color: AppColors.primary), const SizedBox(width: 6), const Expanded(child: Text('Income & Balance', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800))), Text('Lifetime ${CurrencyUtils.format(totalIncome, currency: currency)}', style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]), const SizedBox(height: 9), Row(children: [_miniMetric('This month', CurrencyUtils.format(monthIncome, currency: currency)), _verticalDivider(), _miniMetric('Available', CurrencyUtils.format(balance, currency: currency))])]),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.outlineColor)),
+      child: Column(children: [Row(children: [const Icon(Icons.account_balance_wallet_rounded, size: 16, color: AppColors.primary), const SizedBox(width: 6), const Expanded(child: Text('Income & Balance', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800))), Text('Lifetime ${CurrencyUtils.format(totalIncome, currency: currency)}', style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]), const SizedBox(height: 9), Row(children: [_miniMetric('This month', CurrencyUtils.format(monthIncome, currency: currency)), _verticalDivider(), _miniMetric('Available', CurrencyUtils.format(balance, currency: currency))])]),
     );
   }
 
-  Widget _miniMetric(String label, String value) => Expanded(child: Column(children: [Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), const SizedBox(height: 2), Text(label, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]));
+  Widget _miniMetric(String label, String value) => Expanded(child: Column(children: [Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), const SizedBox(height: 2), Text(label, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]));
 
-  Widget _verticalDivider() => Container(width: 1, height: 25, color: AppColors.border);
+  Widget _verticalDivider() => Container(width: 1, height: 25, color: context.outlineColor);
 
   Widget _sectionTitle(String title) => Align(alignment: Alignment.centerLeft, child: Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)));
 
@@ -182,13 +182,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final dailyProgress = settings.dailyLimit <= 0 ? 0.0 : (todaySpent / settings.dailyLimit).clamp(0.0, 1.0).toDouble();
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.outlineColor)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Budget progress', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)), const SizedBox(height: 8), _budgetLine('Monthly', monthSpent, settings.monthlyBudget, monthlyProgress, currency, AppColors.primary), const SizedBox(height: 8), _budgetLine('Today', todaySpent, settings.dailyLimit, dailyProgress, currency, AppColors.blue)]),
     );
   }
 
   Widget _budgetLine(String label, double spent, double limit, double progress, String currency, Color color) {
-    return Row(children: [SizedBox(width: 48, child: Text(label, style: const TextStyle(fontSize: 9, color: AppColors.textSecondary))), Expanded(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: progress, minHeight: 7, backgroundColor: color.withValues(alpha: .12), valueColor: AlwaysStoppedAnimation(color)))), const SizedBox(width: 8), Text('${CurrencyUtils.format(spent, currency: currency)} / ${CurrencyUtils.format(limit, currency: currency)}', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700))]);
+    return Row(children: [SizedBox(width: 48, child: Text(label, style: TextStyle(fontSize: 9, color: context.secondaryTextColor))), Expanded(child: ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: progress, minHeight: 7, backgroundColor: color.withValues(alpha: .12), valueColor: AlwaysStoppedAnimation(color)))), const SizedBox(width: 8), Text('${CurrencyUtils.format(spent, currency: currency)} / ${CurrencyUtils.format(limit, currency: currency)}', style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700))]);
   }
 
   Widget _insightCard(MapEntry<String, double>? topCategory, MapEntry<int, double>? highest, double total, double income, String currency) {
@@ -200,8 +200,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         : 'Your highest day reached ${CurrencyUtils.format(highest.value, currency: currency)}.';
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(gradient: LinearGradient(colors: [AppColors.softGreen, AppColors.softGreen.withValues(alpha: .45)]), borderRadius: BorderRadius.circular(16)),
-      child: Row(children: [Container(width: 31, height: 31, decoration: BoxDecoration(color: Colors.white.withValues(alpha: .75), shape: BoxShape.circle), child: const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.primary)), const SizedBox(width: 8), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Smart insight', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(message, style: const TextStyle(fontSize: 9)), const SizedBox(height: 2), Text(secondary, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]))]),
+      decoration: BoxDecoration(gradient: LinearGradient(colors: [context.softGreenColor, context.softGreenColor.withValues(alpha: .45)]), borderRadius: BorderRadius.circular(16)),
+      child: Row(children: [Container(width: 31, height: 31, decoration: BoxDecoration(color: Colors.white.withValues(alpha: .75), shape: BoxShape.circle), child: const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.primary)), const SizedBox(width: 8), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Smart insight', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(message, style: const TextStyle(fontSize: 9)), const SizedBox(height: 2), Text(secondary, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]))]),
     );
   }
 
@@ -242,7 +242,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 reservedSize: 20,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt().clamp(0, 6);
-                  return Text(labels[index], style: const TextStyle(fontSize: 8, color: AppColors.textSecondary));
+                  return Text(labels[index], style: TextStyle(fontSize: 8, color: context.secondaryTextColor));
                 },
               ),
             ),
@@ -283,14 +283,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
       height: 88,
       padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(14)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, size: 15, color: AppColors.primary), const SizedBox(height: 4), Text(label, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary)), Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), Text(sublabel, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, size: 15, color: AppColors.primary), const SizedBox(height: 4), Text(label, style: TextStyle(fontSize: 8, color: context.secondaryTextColor)), Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), Text(sublabel, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]),
     );
     return onTap == null ? card : InkWell(onTap: onTap, borderRadius: BorderRadius.circular(14), child: card);
   }
 
   Widget _categories(List<Expense> expenses, Map<String, double> categoryTotals, double total, String currency) {
     final entries = categoryTotals.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    return Column(children: [Container(height: 238, decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(17)), child: Stack(alignment: Alignment.center, children: [PieChart(PieChartData(centerSpaceRadius: 55, sectionsSpace: 2, startDegreeOffset: -90, sections: entries.map((entry) => PieChartSectionData(value: entry.value, color: CategoryIcon.getColor(entry.key), radius: 31, showTitle: false)).toList())), Column(mainAxisSize: MainAxisSize.min, children: [Text(CurrencyUtils.format(total, currency: currency), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)), const Text('Total', style: TextStyle(fontSize: 9, color: AppColors.textSecondary))])])), const SizedBox(height: 12), if (entries.isEmpty) const EmptyState(title: 'No categories yet', message: 'Add expenses to see your breakdown.', icon: Icons.pie_chart_outline_rounded) else ...entries.map((entry) { final percentage = total == 0 ? 0 : entry.value / total * 100; return Padding(padding: const EdgeInsets.only(bottom: 9), child: Row(children: [Container(width: 9, height: 9, decoration: BoxDecoration(color: CategoryIcon.getColor(entry.key), shape: BoxShape.circle)), const SizedBox(width: 8), Expanded(child: Text(entry.key, style: const TextStyle(fontSize: 10))), Text('${percentage.toStringAsFixed(0)}%', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)), const SizedBox(width: 15), SizedBox(width: 70, child: Text(CurrencyUtils.format(entry.value, currency: currency), textAlign: TextAlign.right, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700))) ])); })]);
+    return Column(children: [Container(height: 238, decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(17)), child: Stack(alignment: Alignment.center, children: [PieChart(PieChartData(centerSpaceRadius: 55, sectionsSpace: 2, startDegreeOffset: -90, sections: entries.map((entry) => PieChartSectionData(value: entry.value, color: CategoryIcon.getColor(entry.key), radius: 31, showTitle: false)).toList())), Column(mainAxisSize: MainAxisSize.min, children: [Text(CurrencyUtils.format(total, currency: currency), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)), Text('Total', style: TextStyle(fontSize: 9, color: context.secondaryTextColor))])])), const SizedBox(height: 12), if (entries.isEmpty) const EmptyState(title: 'No categories yet', message: 'Add expenses to see your breakdown.', icon: Icons.pie_chart_outline_rounded) else ...entries.map((entry) { final percentage = total == 0 ? 0 : entry.value / total * 100; return Padding(padding: const EdgeInsets.only(bottom: 9), child: Row(children: [Container(width: 9, height: 9, decoration: BoxDecoration(color: CategoryIcon.getColor(entry.key), shape: BoxShape.circle)), const SizedBox(width: 8), Expanded(child: Text(entry.key, style: const TextStyle(fontSize: 10))), Text('${percentage.toStringAsFixed(0)}%', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)), const SizedBox(width: 15), SizedBox(width: 70, child: Text(CurrencyUtils.format(entry.value, currency: currency), textAlign: TextAlign.right, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700))) ])); })]);
   }
 
   Widget _trends(ExpenseProvider provider, double spending, double income, String currency) {
@@ -331,7 +331,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         children: [
           const Text('Spending trend', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
           const SizedBox(height: 3),
-          const Text('Your spending across the week', style: TextStyle(fontSize: 8, color: AppColors.textSecondary)),
+          Text('Your spending across the week', style: TextStyle(fontSize: 8, color: context.secondaryTextColor)),
           const SizedBox(height: 8),
           Expanded(
             child: LineChart(
@@ -340,13 +340,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 maxX: 6,
                 minY: 0,
                 maxY: maxY,
-                gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: maxY / 3, getDrawingHorizontalLine: (_) => FlLine(color: AppColors.border, strokeWidth: .7)),
+                gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: maxY / 3, getDrawingHorizontalLine: (_) => FlLine(color: context.outlineColor, strokeWidth: .7)),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
                   leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 18, getTitlesWidget: (value, meta) => Text(labels[value.toInt().clamp(0, 6)], style: const TextStyle(fontSize: 8, color: AppColors.textSecondary)))),
+                  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 18, getTitlesWidget: (value, meta) => Text(labels[value.toInt().clamp(0, 6)], style: TextStyle(fontSize: 8, color: context.secondaryTextColor)))),
                 ),
                 lineBarsData: [
                   LineChartBarData(
@@ -372,12 +372,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
       height: 190,
       padding: const EdgeInsets.fromLTRB(12, 13, 12, 7),
       decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(17)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Income vs spending', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), const SizedBox(height: 3), const Text('This month at a glance', style: TextStyle(fontSize: 8, color: AppColors.textSecondary)), const SizedBox(height: 6), Expanded(child: BarChart(BarChartData(maxY: maxValue == 0 ? 100 : maxValue * 1.25, minY: 0, barTouchData: BarTouchData(enabled: false), gridData: const FlGridData(show: false), borderData: FlBorderData(show: false), titlesData: FlTitlesData(leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 17, getTitlesWidget: (value, meta) => Text(value.toInt() == 0 ? 'Income' : 'Spent', style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))))), barGroups: [BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: income, width: 42, color: AppColors.primary, borderRadius: BorderRadius.circular(5))]), BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: spending, width: 42, color: AppColors.orange, borderRadius: BorderRadius.circular(5))])]))) ]),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Income vs spending', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text('This month at a glance', style: TextStyle(fontSize: 8, color: context.secondaryTextColor)), const SizedBox(height: 6), Expanded(child: BarChart(BarChartData(maxY: maxValue == 0 ? 100 : maxValue * 1.25, minY: 0, barTouchData: BarTouchData(enabled: false), gridData: const FlGridData(show: false), borderData: FlBorderData(show: false), titlesData: FlTitlesData(leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)), bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 17, getTitlesWidget: (value, meta) => Text(value.toInt() == 0 ? 'Income' : 'Spent', style: TextStyle(fontSize: 8, color: context.secondaryTextColor))))), barGroups: [BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: income, width: 42, color: AppColors.primary, borderRadius: BorderRadius.circular(5))]), BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: spending, width: 42, color: AppColors.orange, borderRadius: BorderRadius.circular(5))])]))) ]),
     );
   }
 
   Widget _trendMetric(String label, String value, IconData icon, Color color) {
-    return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(14)), child: Row(children: [Container(width: 27, height: 27, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(9)), child: Icon(icon, size: 15, color: color)), const SizedBox(width: 7), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800)), Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]))]));
+  return Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(14)), child: Row(children: [Container(width: 27, height: 27, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(9)), child: Icon(icon, size: 15, color: color)), const SizedBox(width: 7), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800)), Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]))]));
   }
 
 }

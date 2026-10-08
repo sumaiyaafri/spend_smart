@@ -24,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _profileCard(settings.userName),
           const SizedBox(height: 14),
-          _sectionTitle('Profile'),
+          _sectionTitle(context, 'Profile'),
           const SizedBox(height: 6),
           _card(
             context,
@@ -35,13 +35,13 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColors.primary,
                 title: 'Your name',
                 subtitle: settings.userName.isEmpty ? 'Add your name for a personal touch' : settings.userName,
-                trailing: const Icon(Icons.edit_rounded, size: 16, color: AppColors.textSecondary),
+                trailing: Icon(Icons.edit_rounded, size: 16, color: context.secondaryTextColor),
                 onTap: () => _editName(context, settings),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _sectionTitle('Preferences'),
+          _sectionTitle(context, 'Preferences'),
           const SizedBox(height: 6),
           _card(
             context,
@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
                 subtitle: 'Choose how Spend Smart looks',
                 child: _themeSelector(context, settings),
               ),
-              _divider(),
+              _divider(context),
               _settingRow(
                 context,
                 icon: Icons.payments_rounded,
@@ -67,20 +67,20 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 onTap: () => _chooseCurrency(context, settings),
               ),
-              _divider(),
+              _divider(context),
               _settingRow(
                 context,
                 icon: Icons.notifications_active_outlined,
                 color: AppColors.primary,
                 title: 'Notifications',
                 subtitle: settings.dailyReminder ? 'Reminders and budget alerts are on' : 'Manage reminders and budget alerts',
-                trailing: const Icon(Icons.chevron_right_rounded, size: 19, color: AppColors.textSecondary),
+                trailing: Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _sectionTitle('Spending Plan'),
+          _sectionTitle(context, 'Spending Plan'),
           const SizedBox(height: 6),
           _card(
             context,
@@ -91,35 +91,35 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColors.primary,
                 title: 'Budget & Limits',
                 subtitle: 'Set monthly budget and daily spending limit',
-                trailing: const Icon(Icons.chevron_right_rounded, size: 19, color: AppColors.textSecondary),
+                trailing: Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetLimitsScreen())),
               ),
             ],
           ),
           const SizedBox(height: 14),
-          _sectionTitle('Data & Privacy'),
+          _sectionTitle(context, 'Data & Privacy'),
           const SizedBox(height: 6),
           _card(
             context,
             children: [
               _settingRow(context, icon: Icons.cloud_upload_outlined, color: AppColors.blue, title: 'Backup & Restore', subtitle: 'Save or restore expenses and income', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen()))),
-              _divider(),
+              _divider(context),
               _settingRow(context, icon: Icons.download_rounded, color: AppColors.primary, title: 'Export Data', subtitle: 'Create a portable JSON backup', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen()))),
             ],
           ),
           const SizedBox(height: 14),
-          _sectionTitle('App'),
+          _sectionTitle(context, 'App'),
           const SizedBox(height: 6),
           _card(
             context,
             children: [
               _settingRow(context, icon: Icons.auto_stories_outlined, color: AppColors.blue, title: 'View Onboarding', subtitle: 'Explore the introduction pages again', onTap: settings.resetOnboarding),
-              _divider(),
+              _divider(context),
               _settingRow(context, icon: Icons.info_outline_rounded, color: AppColors.textSecondary, title: 'About Spend Smart', subtitle: 'Version 1.0.0 • 100% offline'),
             ],
           ),
           const SizedBox(height: 20),
-          const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.lock_outline_rounded, size: 13, color: AppColors.textSecondary), SizedBox(width: 5), Text('Your data stays on your device', style: TextStyle(fontSize: 10, color: AppColors.textSecondary))]),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.lock_outline_rounded, size: 13, color: context.secondaryTextColor), const SizedBox(width: 5), Text('Your data stays on your device', style: TextStyle(fontSize: 10, color: context.secondaryTextColor))]),
         ],
       ),
     );
@@ -137,11 +137,11 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionTitle(String title) => Align(alignment: Alignment.centerLeft, child: Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.textSecondary)));
+  Widget _sectionTitle(BuildContext context, String title) => Align(alignment: Alignment.centerLeft, child: Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: context.secondaryTextColor)));
 
   Widget _card(BuildContext context, {required List<Widget> children}) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(17), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(17), border: Border.all(color: context.outlineColor)),
       child: Column(children: children),
     );
   }
@@ -149,18 +149,18 @@ class SettingsScreen extends StatelessWidget {
   Widget _settingRow(BuildContext context, {required IconData icon, required Color color, required String title, required String subtitle, Widget? child, Widget? trailing, VoidCallback? onTap}) {
     final content = Padding(
       padding: const EdgeInsets.all(12),
-      child: Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, size: 17, color: color)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(height: 3), Text(subtitle, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))])), if (child != null) child else if (trailing != null) trailing else if (onTap != null) const Icon(Icons.chevron_right_rounded, size: 19, color: AppColors.textSecondary)]),
+      child: Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, size: 17, color: color)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(height: 3), Text(subtitle, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))])), if (child != null) child else if (trailing != null) trailing else if (onTap != null) Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor)]),
     );
     return onTap == null ? content : InkWell(onTap: onTap, borderRadius: BorderRadius.circular(17), child: content);
   }
 
-  Widget _divider() => const Divider(height: 1, indent: 55, endIndent: 12, color: AppColors.border);
+  Widget _divider(BuildContext context) => Divider(height: 1, indent: 55, endIndent: 12, color: context.outlineColor);
 
   Widget _themeSelector(BuildContext context, SettingsProvider settings) {
     final options = [(ThemeMode.light, 'Light', Icons.light_mode_rounded), (ThemeMode.system, 'Auto', Icons.brightness_auto_rounded), (ThemeMode.dark, 'Dark', Icons.dark_mode_rounded)];
     return Row(children: options.map((option) {
       final selected = settings.themeMode == option.$1;
-      return Padding(padding: const EdgeInsets.only(left: 4), child: InkWell(onTap: () => settings.setThemeMode(option.$1), borderRadius: BorderRadius.circular(9), child: Container(width: 30, height: 30, decoration: BoxDecoration(color: selected ? AppColors.primary : const Color(0xFFF0F5F3), borderRadius: BorderRadius.circular(9)), child: Icon(option.$3, size: 14, color: selected ? Colors.white : AppColors.textSecondary))));
+      return Padding(padding: const EdgeInsets.only(left: 4), child: InkWell(onTap: () => settings.setThemeMode(option.$1), borderRadius: BorderRadius.circular(9), child: Container(width: 30, height: 30, decoration: BoxDecoration(color: selected ? AppColors.primary : context.mutedSurfaceColor, borderRadius: BorderRadius.circular(9)), child: Icon(option.$3, size: 14, color: selected ? Colors.white : context.secondaryTextColor))));
     }).toList());
   }
 

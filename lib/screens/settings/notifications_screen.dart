@@ -46,7 +46,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final settings = context.watch<SettingsProvider>();
     final expenses = context.watch<ExpenseProvider>();
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
@@ -131,7 +131,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Row(
         children: [
           IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 17)),
-          const Expanded(child: Column(children: [Text('Notifications', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)), SizedBox(height: 3), Text('Stay on top of your spending', style: TextStyle(fontSize: 9, color: AppColors.textSecondary))])),
+          Expanded(child: Column(children: [const Text('Notifications', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text('Stay on top of your spending', style: TextStyle(fontSize: 9, color: context.secondaryTextColor))])),
           const SizedBox(width: 48),
         ],
       ),
@@ -158,11 +158,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _sectionTitle(String title) => Align(alignment: Alignment.centerLeft, child: Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: AppColors.textSecondary)));
+  Widget _sectionTitle(String title) => Align(alignment: Alignment.centerLeft, child: Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: context.secondaryTextColor)));
 
   Widget _card(List<Widget> children) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(17), border: Border.all(color: AppColors.border)),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(17), border: Border.all(color: context.outlineColor)),
       child: Column(children: children),
     );
   }
@@ -170,7 +170,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _switchRow({required IconData icon, required Color color, required String title, required String subtitle, required bool value, required ValueChanged<bool> onChanged}) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
-      child: Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, color: color, size: 17)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(height: 3), Text(subtitle, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))])), Switch.adaptive(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary, activeTrackColor: AppColors.primary.withValues(alpha: .35))],),
+      child: Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, color: color, size: 17)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(height: 3), Text(subtitle, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))])), Switch.adaptive(value: value, onChanged: onChanged, activeThumbColor: AppColors.primary, activeTrackColor: AppColors.primary.withValues(alpha: .35))],),
     );
   }
 
@@ -180,7 +180,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       borderRadius: BorderRadius.circular(17),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, color: color, size: 17)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: onTap == null ? AppColors.textSecondary : AppColors.textPrimary)), const SizedBox(height: 3), Text(subtitle, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))])), Icon(Icons.chevron_right_rounded, size: 19, color: onTap == null ? AppColors.border : AppColors.textSecondary)]),
+        child: Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, color: color, size: 17)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: onTap == null ? context.secondaryTextColor : context.primaryTextColor)), const SizedBox(height: 3), Text(subtitle, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))])), Icon(Icons.chevron_right_rounded, size: 19, color: onTap == null ? context.outlineColor : context.secondaryTextColor)]),
       ),
     );
   }
@@ -189,8 +189,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final body = settings.dailyReminder ? 'Don\'t forget to log today\'s spending.' : 'Turn on reminders to see them here.';
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-      child: Row(children: [Container(width: 36, height: 36, decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: const Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary, size: 18)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Spend Smart', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(body, style: const TextStyle(fontSize: 9, color: AppColors.textSecondary))])), Text('${expenses.todayExpenses.length} today', style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.outlineColor)),
+      child: Row(children: [Container(width: 36, height: 36, decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: const Icon(Icons.account_balance_wallet_rounded, color: AppColors.primary, size: 18)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Spend Smart', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(body, style: TextStyle(fontSize: 9, color: context.secondaryTextColor))])), Text('${expenses.todayExpenses.length} today', style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]),
     );
   }
 
@@ -202,7 +202,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _divider() => const Divider(height: 1, indent: 55, endIndent: 12, color: AppColors.border);
+  Widget _divider() => Divider(height: 1, indent: 55, endIndent: 12, color: context.outlineColor);
 
   String _formatTime(TimeOfDay time) => MaterialLocalizations.of(context).formatTimeOfDay(time, alwaysUse24HourFormat: false);
 

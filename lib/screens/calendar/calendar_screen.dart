@@ -42,7 +42,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Scaffold(
       extendBody: true,
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -89,7 +89,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18),
       padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(color: const Color(0xFFF0F5F3), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: context.mutedSurfaceColor, borderRadius: BorderRadius.circular(10)),
       child: Row(
         children: [
           Expanded(child: _toggleButton('List', Icons.receipt_long_rounded, !showCalendar)),
@@ -106,7 +106,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: InkWell(
         onTap: () => setState(() => showCalendar = label == 'Calendar'),
         borderRadius: BorderRadius.circular(8),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 13, color: selected ? Colors.white : AppColors.textSecondary), const SizedBox(width: 5), Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: selected ? Colors.white : AppColors.textSecondary))]),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 13, color: selected ? Colors.white : context.secondaryTextColor), const SizedBox(width: 5), Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: selected ? Colors.white : context.secondaryTextColor))]),
       ),
     );
   }
@@ -133,7 +133,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     for (final day in weekdays) {
-      cells.add(Center(child: Text(day, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary, fontWeight: FontWeight.w600))));
+        cells.add(Center(child: Text(day, style: TextStyle(fontSize: 8, color: context.secondaryTextColor, fontWeight: FontWeight.w600))));
     }
     for (var i = 0; i < leadingEmpty; i++) {
       cells.add(const SizedBox());
@@ -172,8 +172,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             width: 24,
             height: 24,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: selected ? AppColors.primary : today ? AppColors.softGreen : Colors.transparent, shape: BoxShape.circle),
-            child: Text('${date.day}', style: TextStyle(fontSize: 9, fontWeight: selected || today ? FontWeight.w800 : FontWeight.w500, color: selected ? Colors.white : AppColors.textPrimary)),
+          decoration: BoxDecoration(color: selected ? AppColors.primary : today ? context.softGreenColor : Colors.transparent, shape: BoxShape.circle),
+          child: Text('${date.day}', style: TextStyle(fontSize: 9, fontWeight: selected || today ? FontWeight.w800 : FontWeight.w500, color: selected ? Colors.white : context.primaryTextColor)),
           ),
           if (expenses.isNotEmpty)
             Container(width: 4, height: 4, decoration: BoxDecoration(color: total > 500 ? AppColors.orange : AppColors.primary, shape: BoxShape.circle)),
@@ -189,7 +189,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(AppDateUtils.formatDate(selectedDate), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)), Text(CurrencyUtils.format(total, currency: currency), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))]),
         const SizedBox(height: 6),
         if (expenses.isEmpty)
-          Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(15)), child: const Text('No expenses on this day', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)))
+          Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(15)), child: Text('No expenses on this day', style: TextStyle(fontSize: 10, color: context.secondaryTextColor)))
         else
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -210,8 +210,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children: [
             CategoryIcon(category: expense.category, size: 34),
             const SizedBox(width: 9),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(expense.title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(height: 2), Text(expense.category, style: const TextStyle(fontSize: 9, color: AppColors.textSecondary))])),
-            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text(CurrencyUtils.format(expense.amount, currency: currency), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)), const SizedBox(height: 2), Text(AppDateUtils.formatTime(expense.date), style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))]),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(expense.title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(height: 2), Text(expense.category, style: TextStyle(fontSize: 9, color: context.secondaryTextColor))])),
+            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text(CurrencyUtils.format(expense.amount, currency: currency), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700)), const SizedBox(height: 2), Text(AppDateUtils.formatTime(expense.date), style: TextStyle(fontSize: 8, color: context.secondaryTextColor))]),
           ],
         ),
       ),
@@ -227,7 +227,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     if (groups.isEmpty) {
-      return const Center(child: Text('No expenses yet', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)));
+    return Center(child: Text('No expenses yet', style: TextStyle(fontSize: 11, color: context.secondaryTextColor)));
     }
 
     return ListView(

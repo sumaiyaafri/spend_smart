@@ -121,7 +121,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       body: SafeArea(
         child: Form(
           key: formKey,
@@ -190,7 +190,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
 
   Widget _label(String text) => Padding(
         padding: const EdgeInsets.only(left: 3, bottom: 5),
-        child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: AppColors.textSecondary)),
+      child: Text(text, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: context.secondaryTextColor)),
       );
 
   Widget _textField({
@@ -209,13 +209,13 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
       decoration: InputDecoration(
         hintText: hint,
         prefixText: prefix,
-        hintStyle: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+        hintStyle: TextStyle(fontSize: 11, color: context.secondaryTextColor),
         contentPadding: const EdgeInsets.symmetric(horizontal: 11, vertical: 11),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: context.fieldColor,
         errorStyle: const TextStyle(fontSize: 9),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: const BorderSide(color: AppColors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: const BorderSide(color: AppColors.border)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: context.outlineColor)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: BorderSide(color: context.outlineColor)),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(11), borderSide: const BorderSide(color: AppColors.primary, width: 1.2)),
       ),
       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
@@ -253,13 +253,13 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
       child: Container(
         height: 47,
         padding: const EdgeInsets.symmetric(horizontal: 7),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11), border: Border.all(color: AppColors.border)),
+        decoration: BoxDecoration(color: context.fieldColor, borderRadius: BorderRadius.circular(11), border: Border.all(color: context.outlineColor)),
         child: Row(
           children: [
             _sourceIcon(selectedSource),
             const SizedBox(width: 8),
             Expanded(child: Text(selectedSource, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600))),
-            const Icon(Icons.chevron_right_rounded, size: 19, color: AppColors.textSecondary),
+            Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
           ],
         ),
       ),
@@ -282,10 +282,10 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
       child: Container(
         height: 43,
         padding: const EdgeInsets.symmetric(horizontal: 11),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(11), border: Border.all(color: AppColors.border)),
+        decoration: BoxDecoration(color: context.fieldColor, borderRadius: BorderRadius.circular(11), border: Border.all(color: context.outlineColor)),
         child: Row(
           children: [
-            Expanded(child: Text(dateLabel, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary))),
+            Expanded(child: Text(dateLabel, style: TextStyle(fontSize: 11, color: context.secondaryTextColor))),
             const Icon(Icons.calendar_month_rounded, size: 16, color: AppColors.primaryDark),
           ],
         ),
@@ -308,7 +308,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
           borderRadius: BorderRadius.circular(20),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.border)),
+              decoration: BoxDecoration(color: context.fieldColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: context.outlineColor)),
             child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.add_rounded, size: 13, color: AppColors.primary), SizedBox(width: 3), Text('Add', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700))]),
           ),
         ),
@@ -323,7 +323,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(children: [Icon(Icons.watch_later_outlined, size: 15, color: AppColors.textSecondary), SizedBox(width: 5), Text('Add Attachment', style: TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.w600))]),
+          Row(children: [Icon(Icons.watch_later_outlined, size: 15, color: context.secondaryTextColor), const SizedBox(width: 5), Text('Add Attachment', style: TextStyle(fontSize: 10, color: context.secondaryTextColor, fontWeight: FontWeight.w600))]),
           const SizedBox(height: 7),
           Row(children: [Container(width: 45, height: 45, decoration: BoxDecoration(color: const Color(0xFFFFF1D9), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.description_outlined, size: 20, color: AppColors.orange)), const SizedBox(width: 8), Container(width: 45, height: 45, decoration: BoxDecoration(color: const Color(0xFFEAF3F0), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.add_rounded, color: AppColors.primary))]),
         ],

@@ -41,7 +41,7 @@ class _BudgetLimitsScreenState extends State<BudgetLimitsScreen> {
     final dailyLimit = double.tryParse(dailyController.text) ?? settings.dailyLimit;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -80,7 +80,7 @@ class _BudgetLimitsScreenState extends State<BudgetLimitsScreen> {
                           value: settings.dailyLimitAlert,
                           onChanged: settings.setDailyLimitAlert,
                           activeThumbColor: AppColors.primary,
-                          activeTrackColor: AppColors.softGreen,
+      activeTrackColor: context.softGreenColor,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 13),
                           title: const Text('Notify when daily limit is reached', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
                         ),
@@ -89,7 +89,7 @@ class _BudgetLimitsScreenState extends State<BudgetLimitsScreen> {
                           value: settings.monthlyBudgetAlert,
                           onChanged: settings.setMonthlyBudgetAlert,
                           activeThumbColor: AppColors.primary,
-                          activeTrackColor: AppColors.softGreen,
+      activeTrackColor: context.softGreenColor,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 13),
                           title: const Text('Notify when monthly budget is 80% used', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
                         ),
@@ -132,17 +132,17 @@ class _BudgetLimitsScreenState extends State<BudgetLimitsScreen> {
     final progress = limit <= 0 ? 0.0 : (spent / limit).clamp(0.0, 1.0).toDouble();
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 11),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(17), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .035), blurRadius: 14, offset: const Offset(0, 5))]),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(17), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .035), blurRadius: 14, offset: const Offset(0, 5))]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, size: 18, color: color)), const SizedBox(width: 9), Expanded(child: Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))), SizedBox(width: 92, height: 34, child: TextField(controller: controller, onChanged: (_) => setState(() {}), keyboardType: const TextInputType.numberWithOptions(decimal: true), textAlign: TextAlign.right, decoration: InputDecoration(prefixText: '৳ ', contentPadding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5), filled: true, fillColor: const Color(0xFFF3F8F6), border: OutlineInputBorder(borderRadius: BorderRadius.circular(9), borderSide: BorderSide.none)), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)))]),
+          Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: Icon(icon, size: 18, color: color)), const SizedBox(width: 9), Expanded(child: Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))), SizedBox(width: 92, height: 34, child: TextField(controller: controller, onChanged: (_) => setState(() {}), keyboardType: const TextInputType.numberWithOptions(decimal: true), textAlign: TextAlign.right, decoration: InputDecoration(prefixText: '৳ ', contentPadding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5), filled: true, fillColor: context.fieldColor, border: OutlineInputBorder(borderRadius: BorderRadius.circular(9), borderSide: BorderSide.none)), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)))]),
           const SizedBox(height: 8),
-          Text('Spent: ${CurrencyUtils.format(spent, currency: currency)}', style: const TextStyle(fontSize: 9, color: AppColors.textSecondary)),
+          Text('Spent: ${CurrencyUtils.format(spent, currency: currency)}', style: TextStyle(fontSize: 9, color: context.secondaryTextColor)),
           const SizedBox(height: 5),
           ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: progress, minHeight: 8, backgroundColor: color.withValues(alpha: .12), valueColor: AlwaysStoppedAnimation(color))),
           const SizedBox(height: 5),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Remaining: ${CurrencyUtils.format(remaining, currency: currency)}', style: const TextStyle(fontSize: 9, color: AppColors.textSecondary)), Text('${(progress * 100).round()}%', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color))]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Remaining: ${CurrencyUtils.format(remaining, currency: currency)}', style: TextStyle(fontSize: 9, color: context.secondaryTextColor)), Text('${(progress * 100).round()}%', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color))]),
         ],
       ),
     );

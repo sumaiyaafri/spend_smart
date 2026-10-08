@@ -24,7 +24,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -55,8 +55,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                   const SizedBox(height: 15),
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: const Color(0xFFFFF7E8), borderRadius: BorderRadius.circular(14)),
-                    child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.info_outline_rounded, size: 17, color: AppColors.orange), SizedBox(width: 8), Expanded(child: Text('Restore adds records to your current data. It does not delete anything, so you can safely move data between devices.', style: TextStyle(fontSize: 9, color: AppColors.textPrimary)))]),
+                    decoration: BoxDecoration(color: context.isDarkMode ? const Color(0xFF332B18) : const Color(0xFFFFF7E8), borderRadius: BorderRadius.circular(14)),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [const Icon(Icons.info_outline_rounded, size: 17, color: AppColors.orange), const SizedBox(width: 8), Expanded(child: Text('Restore adds records to your current data. It does not delete anything, so you can safely move data between devices.', style: TextStyle(fontSize: 9, color: context.primaryTextColor)))]),
                   ),
                   if (working) ...[const SizedBox(height: 20), const Center(child: CircularProgressIndicator())],
                 ],
@@ -86,8 +86,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   Widget _actionCard({required IconData icon, required Color color, required String title, required String subtitle, required String button, required VoidCallback? onTap}) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
-      child: Row(children: [Container(width: 38, height: 38, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(12)), child: Icon(icon, size: 19, color: color)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(subtitle, style: const TextStyle(fontSize: 8, color: AppColors.textSecondary))])), FilledButton.tonal(onPressed: onTap, style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap), child: Text(button, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700)))],),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: context.outlineColor)),
+      child: Row(children: [Container(width: 38, height: 38, decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(12)), child: Icon(icon, size: 19, color: color)), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(subtitle, style: TextStyle(fontSize: 8, color: context.secondaryTextColor))])), FilledButton.tonal(onPressed: onTap, style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 32), tapTargetSize: MaterialTapTargetSize.shrinkWrap), child: Text(button, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700)))],),
     );
   }
 

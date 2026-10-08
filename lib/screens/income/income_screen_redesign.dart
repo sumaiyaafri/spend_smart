@@ -43,7 +43,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final spent = provider.expenses.where((expense) => expense.date.year == selectedMonth.year && expense.date.month == selectedMonth.month).fold<double>(0, (sum, expense) => sum + expense.amount);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.pageBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -107,7 +107,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   Widget _viewToggle() {
     return Container(
       padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(color: const Color(0xFFF0F5F3), borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(color: context.mutedSurfaceColor, borderRadius: BorderRadius.circular(14)),
       child: Row(children: [
         Expanded(child: _viewButton('Overview', !showHistory)),
         Expanded(child: _viewButton('Income History', showHistory)),
@@ -123,7 +123,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         height: 30,
         alignment: Alignment.center,
         decoration: BoxDecoration(color: selected ? AppColors.primary : Colors.transparent, borderRadius: BorderRadius.circular(12)),
-        child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: selected ? Colors.white : AppColors.textSecondary)),
+        child: Text(label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: selected ? Colors.white : context.secondaryTextColor)),
       ),
     );
   }
@@ -145,9 +145,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
             prefixIconConstraints: const BoxConstraints(minWidth: 36),
             contentPadding: const EdgeInsets.symmetric(horizontal: 9, vertical: 8),
             filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.border)),
+            fillColor: context.fieldColor,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.outlineColor)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.outlineColor)),
           ),
         ),
         const SizedBox(height: 14),
@@ -178,9 +178,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final canGoNext = selectedMonth.isBefore(DateTime(DateTime.now().year, DateTime.now().month));
     return Row(
       children: [
-        IconButton(onPressed: () => setState(() => selectedMonth = DateTime(selectedMonth.year, selectedMonth.month - 1)), icon: const Icon(Icons.chevron_left_rounded, color: AppColors.textSecondary)),
+        IconButton(onPressed: () => setState(() => selectedMonth = DateTime(selectedMonth.year, selectedMonth.month - 1)), icon: Icon(Icons.chevron_left_rounded, color: context.secondaryTextColor)),
         Expanded(child: Text(AppDateUtils.formatMonthYear(selectedMonth), textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))),
-        IconButton(onPressed: canGoNext ? () => setState(() => selectedMonth = DateTime(selectedMonth.year, selectedMonth.month + 1)) : null, icon: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary)),
+        IconButton(onPressed: canGoNext ? () => setState(() => selectedMonth = DateTime(selectedMonth.year, selectedMonth.month + 1)) : null, icon: Icon(Icons.chevron_right_rounded, color: context.secondaryTextColor)),
       ],
     );
   }
@@ -232,7 +232,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.fromLTRB(8, 9, 8, 8),
-        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(13), border: Border.all(color: AppColors.border)),
+        decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(13), border: Border.all(color: context.outlineColor)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -240,7 +240,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
             const SizedBox(height: 5),
             Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800)),
             const SizedBox(height: 2),
-            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 7, color: AppColors.textSecondary)),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 7, color: context.secondaryTextColor)),
           ],
         ),
       ),
@@ -254,12 +254,12 @@ class _IncomeScreenState extends State<IncomeScreen> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          ChoiceChip(label: const Text('All', style: TextStyle(fontSize: 9)), selected: sourceFilter == null, showCheckmark: false, selectedColor: AppColors.primary, labelStyle: TextStyle(color: sourceFilter == null ? Colors.white : AppColors.textSecondary), onSelected: (_) => setState(() => sourceFilter = null)),
+          ChoiceChip(label: const Text('All', style: TextStyle(fontSize: 9)), selected: sourceFilter == null, showCheckmark: false, selectedColor: AppColors.primary, labelStyle: TextStyle(color: sourceFilter == null ? Colors.white : context.secondaryTextColor), onSelected: (_) => setState(() => sourceFilter = null)),
           const SizedBox(width: 6),
           ...sources.map(
             (source) => Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: ChoiceChip(label: Text(source, style: const TextStyle(fontSize: 9)), selected: sourceFilter == source, showCheckmark: false, selectedColor: AppColors.primary, labelStyle: TextStyle(color: sourceFilter == source ? Colors.white : AppColors.textSecondary), onSelected: (_) => setState(() => sourceFilter = source)),
+              child: ChoiceChip(label: Text(source, style: const TextStyle(fontSize: 9)), selected: sourceFilter == source, showCheckmark: false, selectedColor: AppColors.primary, labelStyle: TextStyle(color: sourceFilter == source ? Colors.white : context.secondaryTextColor), onSelected: (_) => setState(() => sourceFilter = source)),
             ),
           ),
         ],
@@ -271,8 +271,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 9),
       padding: const EdgeInsets.fromLTRB(13, 12, 8, 12),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(17), border: Border.all(color: AppColors.border)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: AppColors.softGreen, borderRadius: BorderRadius.circular(11)), child: Icon(sourceIcon(income.source), size: 18, color: AppColors.primaryDark)), const SizedBox(width: 9), Expanded(child: Text(income.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))), PopupMenuButton<String>(padding: EdgeInsets.zero, iconSize: 19, onSelected: (action) { if (action == 'edit') { Navigator.push(context, MaterialPageRoute(builder: (_) => AddIncomeScreen(income: income))); } else { _delete(income); } }, itemBuilder: (_) => const [PopupMenuItem(value: 'edit', child: Text('Edit')), PopupMenuItem(value: 'delete', child: Text('Delete'))])]), const SizedBox(height: 6), Text('+ ${CurrencyUtils.format(income.amount, currency: currency)}', style: const TextStyle(color: AppColors.primaryDark, fontSize: 18, fontWeight: FontWeight.w800)), const SizedBox(height: 4), Text('${income.source} • ${AppDateUtils.formatDate(income.date)}', style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)), if (income.note?.isNotEmpty == true) ...[const SizedBox(height: 4), Text(income.note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 9, color: AppColors.textSecondary))]]),
+      decoration: BoxDecoration(color: context.surfaceColor, borderRadius: BorderRadius.circular(17), border: Border.all(color: context.outlineColor)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Container(width: 34, height: 34, decoration: BoxDecoration(color: context.softGreenColor, borderRadius: BorderRadius.circular(11)), child: Icon(sourceIcon(income.source), size: 18, color: AppColors.primaryDark)), const SizedBox(width: 9), Expanded(child: Text(income.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800))), PopupMenuButton<String>(padding: EdgeInsets.zero, iconSize: 19, onSelected: (action) { if (action == 'edit') { Navigator.push(context, MaterialPageRoute(builder: (_) => AddIncomeScreen(income: income))); } else { _delete(income); } }, itemBuilder: (_) => const [PopupMenuItem(value: 'edit', child: Text('Edit')), PopupMenuItem(value: 'delete', child: Text('Delete'))])]), const SizedBox(height: 6), Text('+ ${CurrencyUtils.format(income.amount, currency: currency)}', style: const TextStyle(color: AppColors.primaryDark, fontSize: 18, fontWeight: FontWeight.w800)), const SizedBox(height: 4), Text('${income.source} • ${AppDateUtils.formatDate(income.date)}', style: TextStyle(fontSize: 10, color: context.secondaryTextColor)), if (income.note?.isNotEmpty == true) ...[const SizedBox(height: 4), Text(income.note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 9, color: context.secondaryTextColor))]]),
     );
   }
 

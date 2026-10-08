@@ -19,3 +19,23 @@ class AppColors {
   static const red = Color(0xFFFF6B6B);
   static const purple = Color(0xFF8B72F6);
 }
+
+extension SpendSmartThemeColors on BuildContext {
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+
+  Color get pageBackground => Theme.of(this).scaffoldBackgroundColor;
+
+  Color get surfaceColor => Theme.of(this).colorScheme.surface;
+
+  Color get fieldColor => Theme.of(this).inputDecorationTheme.fillColor ?? surfaceColor;
+
+  Color get primaryTextColor => Theme.of(this).colorScheme.onSurface;
+
+  Color get secondaryTextColor => Theme.of(this).colorScheme.onSurfaceVariant;
+
+  Color get outlineColor => Theme.of(this).colorScheme.outline;
+
+  Color get mutedSurfaceColor => isDarkMode ? const Color(0xFF102B28) : const Color(0xFFF0F5F3);
+
+  Color get softGreenColor => isDarkMode ? const Color(0xFF123C34) : AppColors.softGreen;
+}
