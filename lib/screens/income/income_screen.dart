@@ -6,7 +6,7 @@ import '../../data/models/income.dart';
 import '../../providers/expense_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/empty_state.dart';
-import 'add_income_screen.dart';
+import 'add_income_redesign.dart';
 
 class IncomeScreen extends StatefulWidget {
   const IncomeScreen({super.key});

@@ -16,6 +16,8 @@ class ExpenseRepository {
   Future<void> saveIncome(Income income) => databaseHelper.saveIncome(income);
   Future<void> deleteIncome(int id) => databaseHelper.deleteIncome(id);
 
+  Future<void> restoreBackup({required List<Expense> expenses, required List<Income> incomes}) => databaseHelper.restoreBackup(expenses: expenses, incomes: incomes);
+
   Future<void> addExpense(Expense expense) async {
     await databaseHelper.insertExpense(expense);
   }

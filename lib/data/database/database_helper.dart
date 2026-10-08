@@ -92,6 +92,20 @@ class DatabaseHelper {
     await db.delete('incomes', where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<void> restoreBackup({required List<Expense> expenses, required List<Income> incomes}) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      for (final expense in expenses) {
+        final values = expense.toMap()..remove('id');
+        await txn.insert('expenses', values);
+      }
+      for (final income in incomes) {
+        final values = income.toMap()..remove('id');
+        await txn.insert('incomes', values);
+      }
+    });
+  }
+
   Future<int> insertExpense(Expense expense) async {
     final db = await database;
 

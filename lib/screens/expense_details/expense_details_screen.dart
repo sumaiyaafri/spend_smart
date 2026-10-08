@@ -7,7 +7,7 @@ import '../../data/models/expense.dart';
 import '../../providers/expense_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/category_icon.dart';
-import '../add_expense/add_expense_screen.dart';
+import '../add_expense/add_expense_redesign.dart';
 
 class ExpenseDetailsScreen extends StatelessWidget {
   final Expense expense;

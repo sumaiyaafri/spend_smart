@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/models/expense.dart';
-import '../../screens/add_expense/add_expense_screen.dart';
+import '../../screens/add_expense/add_expense_redesign.dart';
 import '../../screens/expense_details/expense_details_screen.dart';
 import '../../screens/main/main_screen.dart';
 import 'app_routes.dart';

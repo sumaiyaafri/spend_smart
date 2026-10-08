@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 import 'app.dart';
 import 'providers/expense_provider.dart';
 import 'providers/settings_provider.dart';
+import 'services/notification_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized();
+
+  await NotificationService.instance.initialize();
 
   runApp(
     MultiProvider(

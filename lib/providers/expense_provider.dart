@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/models/expense.dart';
 import '../data/models/income.dart';
 import '../data/repositories/expense_repository.dart';
+import '../services/notification_service.dart';
 
 class ExpenseProvider extends ChangeNotifier {
   final ExpenseRepository repository;
@@ -57,6 +58,10 @@ class ExpenseProvider extends ChangeNotifier {
     await repository.addExpense(expense);
 
     await loadExpenses();
+    await NotificationService.instance.evaluateBudgetAlerts(
+      todaySpent: todayTotal,
+      monthSpent: monthTotal,
+    );
   }
 
   Future<void> saveIncome(Income income) async {
@@ -69,6 +74,11 @@ class ExpenseProvider extends ChangeNotifier {
     await repository.deleteIncome(id);
     _incomes = await repository.getIncomes();
     notifyListeners();
+  }
+
+  Future<void> restoreBackup({required List<Expense> expenses, required List<Income> incomes}) async {
+    await repository.restoreBackup(expenses: expenses, incomes: incomes);
+    await loadExpenses();
   }
 
   Future<void> updateExpense(Expense expense) async {
