@@ -26,6 +26,7 @@ class SettingsScreen extends StatelessWidget {
           _section(
             context,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
@@ -40,35 +41,32 @@ class SettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: 15),
 
-                LayoutBuilder(
-                  builder: (context, constraints) => SegmentedButton<ThemeMode>(
-                    direction:
-                        constraints.maxWidth <
-                            360 * MediaQuery.textScalerOf(context).scale(1)
-                        ? Axis.vertical
-                        : Axis.horizontal,
-                    segments: const [
-                      ButtonSegment(
-                        value: ThemeMode.light,
-                        icon: Icon(Icons.light_mode_rounded),
-                        label: Text('Light'),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.dark,
-                        icon: Icon(Icons.dark_mode_rounded),
-                        label: Text('Dark'),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.system,
-                        icon: Icon(Icons.phone_android_rounded),
-                        label: Text('System'),
-                      ),
-                    ],
-                    selected: {settings.themeMode},
-                    onSelectionChanged: (value) {
-                      settings.setThemeMode(value.first);
-                    },
-                  ),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    _themeButton(
+                      context,
+                      settings,
+                      ThemeMode.light,
+                      'Light',
+                      Icons.light_mode_rounded,
+                    ),
+                    _themeButton(
+                      context,
+                      settings,
+                      ThemeMode.dark,
+                      'Dark',
+                      Icons.dark_mode_rounded,
+                    ),
+                    _themeButton(
+                      context,
+                      settings,
+                      ThemeMode.system,
+                      'System',
+                      Icons.brightness_auto_rounded,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -175,6 +173,39 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _themeButton(
+    BuildContext context,
+    SettingsProvider settings,
+    ThemeMode mode,
+    String label,
+    IconData icon,
+  ) {
+    final selected = settings.themeMode == mode;
+    final colors = Theme.of(context).colorScheme;
+
+    return Semantics(
+      selected: selected,
+      child: OutlinedButton.icon(
+        onPressed: () => settings.setThemeMode(mode),
+        icon: Icon(icon, size: 18),
+        label: Text(label),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          backgroundColor: selected ? colors.primary : colors.surface,
+          foregroundColor: selected ? colors.onPrimary : colors.onSurface,
+          side: BorderSide(
+            color: selected ? colors.primary : colors.outlineVariant,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

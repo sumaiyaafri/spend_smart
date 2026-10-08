@@ -9,6 +9,7 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/expense_tile.dart';
 import '../../widgets/summary_card.dart';
 import '../expense_details/expense_details_screen.dart';
+import '../income/income_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -69,6 +70,43 @@ class HomeScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 26),
+
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Income & balance',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Income this month: ${CurrencyUtils.format(expenseProvider.monthIncome, currency: currency)}',
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Recorded balance: ${CurrencyUtils.format(expenseProvider.balance, currency: currency)}',
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const IncomeScreen()),
+                      ),
+                      icon: const Icon(Icons.account_balance_wallet_outlined),
+                      label: const Text('Manage income'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 14),
 
             SummaryCard(
               title: "Today's Spending",

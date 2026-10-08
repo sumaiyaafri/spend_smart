@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/models/expense.dart';
+import 'category_icon.dart';
 
 class ExpenseTile extends StatelessWidget {
   final Expense expense;
@@ -15,7 +16,7 @@ class ExpenseTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
 
-        leading: CircleAvatar(child: const Icon(Icons.restaurant)),
+        leading: CategoryIcon(category: expense.category),
 
         title: Text(
           expense.title,

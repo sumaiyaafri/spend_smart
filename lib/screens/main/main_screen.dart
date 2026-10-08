@@ -6,6 +6,7 @@ import '../history/history_screen.dart';
 import '../home/home_screen.dart';
 import '../reports/reports_screen.dart';
 import '../settings/settings_screen.dart';
+import '../income/add_income_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -33,11 +34,42 @@ class _MainScreenState extends State<MainScreen> {
 
       floatingActionButton: FloatingActionButton(
         heroTag: 'main-add-expense',
-        tooltip: 'Add expense',
+        tooltip: 'Add income or expense',
         onPressed: () async {
+          final income = await showModalBottomSheet<bool>(
+            context: context,
+            isScrollControlled: true,
+            showDragHandle: true,
+            builder: (context) => SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.remove_circle_outline),
+                      title: const Text('Add expense'),
+                      subtitle: const Text('Record money spent'),
+                      onTap: () => Navigator.pop(context, false),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.add_circle_outline),
+                      title: const Text('Add income'),
+                      subtitle: const Text('Record salary or money received'),
+                      onTap: () => Navigator.pop(context, true),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+          );
+          if (income == null || !context.mounted) return;
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const AddExpenseScreen()),
+            MaterialPageRoute(
+              builder: (_) =>
+                  income ? const AddIncomeScreen() : const AddExpenseScreen(),
+            ),
           );
         },
         child: const Icon(Icons.add_rounded, size: 26),
