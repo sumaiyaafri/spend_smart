@@ -146,6 +146,25 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
+          const SizedBox(height: 14),
+
+          _section(
+            context,
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: _iconBox(context, Icons.auto_stories_outlined),
+              title: const Text(
+                'View onboarding',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              subtitle: const Text(
+                'Explore the three introduction pages again',
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: settings.resetOnboarding,
+            ),
+          ),
+
           const SizedBox(height: 30),
 
           const Center(

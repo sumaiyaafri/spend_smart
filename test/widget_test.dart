@@ -125,7 +125,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('first launch shows onboarding and Skip opens main', (
+  testWidgets('three onboarding pages finish and replay from settings', (
     tester,
   ) async {
     final settings = SettingsProvider();
@@ -141,12 +141,42 @@ void main() {
     );
     expect(find.text('Continue'), findsOneWidget);
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Skip'));
+    expect(find.text('SIMPLE TRACKING'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('SMART OVERVIEW'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('PRIVATE & OFFLINE'), findsOneWidget);
+    expect(find.text('Skip'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Get Started'));
     await tester.pumpAndSettle();
     expect(find.text('History'), findsOneWidget);
     expect(tester.takeException(), isNull);
     final reloaded = SettingsProvider();
     await reloaded.loadSettings();
     expect(reloaded.onboardingCompleted, isTrue);
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('View onboarding'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await Scrollable.ensureVisible(
+      tester.element(find.text('View onboarding')),
+      alignment: 0.2,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View onboarding'));
+    await tester.pumpAndSettle();
+    expect(find.text('SIMPLE TRACKING'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    expect(find.text('History'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }
