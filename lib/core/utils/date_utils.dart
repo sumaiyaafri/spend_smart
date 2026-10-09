@@ -54,4 +54,28 @@ class AppDateUtils {
     return date.year == now.year &&
         date.month == now.month;
   }
+
+  /// Returns the number of calendar days that have elapsed in a range.
+  ///
+  /// For the current month/range, the denominator stops at today instead of
+  /// counting future days. For a completed range, every day in that range is
+  /// included. Both endpoints are inclusive.
+  static int elapsedDaysInRange(
+    DateTime start,
+    DateTime end, {
+    DateTime? today,
+  }) {
+    final startDay = DateTime(start.year, start.month, start.day);
+    final endDay = DateTime(end.year, end.month, end.day);
+    final todayDay = today == null
+        ? DateTime.now()
+        : DateTime(today.year, today.month, today.day);
+    final effectiveEnd = endDay.isAfter(todayDay) ? todayDay : endDay;
+
+    if (effectiveEnd.isBefore(startDay)) {
+      return 0;
+    }
+
+    return effectiveEnd.difference(startDay).inDays + 1;
+  }
 }

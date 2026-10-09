@@ -50,8 +50,11 @@ class _StatementScreenState extends State<StatementScreen> {
     final totalExpenses = expenses.fold<double>(0, (sum, item) => sum + item.amount);
     final opening = _openingBalance(provider);
     final closing = opening + totalIncome - totalExpenses;
-    final activeDays = expenses.map((item) => DateTime(item.date.year, item.date.month, item.date.day)).toSet().length;
-    final dailyAverage = activeDays == 0 ? 0.0 : totalExpenses / activeDays;
+    final elapsedDays = AppDateUtils.elapsedDaysInRange(
+      range.start,
+      range.end,
+    );
+    final dailyAverage = elapsedDays == 0 ? 0.0 : totalExpenses / elapsedDays;
     final categories = _categoryTotals(expenses);
 
     return Scaffold(
@@ -132,7 +135,7 @@ class _StatementScreenState extends State<StatementScreen> {
         _summaryCard(width, Icons.arrow_upward_rounded, AppColors.primary, 'Total Income', CurrencyUtils.format(income, currency: currency), '$incomeCount transactions'),
         _summaryCard(width, Icons.arrow_downward_rounded, AppColors.red, 'Total Expenses', CurrencyUtils.format(expenses, currency: currency), '$expenseCount transactions'),
         _summaryCard(width, Icons.account_balance_wallet_rounded, AppColors.blue, 'Closing Balance', CurrencyUtils.format(closing, currency: currency), 'Income - expenses'),
-        _summaryCard(width, Icons.bar_chart_rounded, AppColors.purple, 'Average Daily Expense', CurrencyUtils.format(average, currency: currency), 'Active spending days'),
+        _summaryCard(width, Icons.bar_chart_rounded, AppColors.purple, 'Average Daily Expense', CurrencyUtils.format(average, currency: currency), 'Elapsed calendar days'),
       ]);
     });
   }

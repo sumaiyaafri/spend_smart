@@ -75,7 +75,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     final total = expenses.fold<double>(0, (sum, item) => sum + item.amount);
 
-    final average = expenses.isEmpty ? 0.0 : total / expenses.length;
+    final elapsedDays = AppDateUtils.elapsedDaysInRange(
+      DateTime(selectedMonth.year, selectedMonth.month, 1),
+      DateTime(selectedMonth.year, selectedMonth.month + 1, 0),
+    );
+    final average = elapsedDays == 0 ? 0.0 : total / elapsedDays;
 
     return SafeArea(
       bottom: false,

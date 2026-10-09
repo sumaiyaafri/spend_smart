@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../core/utils/date_utils.dart';
 import '../data/models/expense.dart';
 import '../data/models/income.dart';
 
@@ -103,9 +104,12 @@ class StatementPdfService {
 
     final closing = opening + totalIncome - totalExpenses;
 
-    // Reference design uses all days in the selected period, not only days
-    // where an expense exists.
-    final periodDays = _periodDayCount(period);
+    // Average over elapsed calendar days, not only days that have expenses
+    // and not future days in the current month.
+    final periodDays = AppDateUtils.elapsedDaysInRange(
+      period.start,
+      period.end,
+    );
     final dailyAverage =
         periodDays == 0 ? 0.0 : totalExpenses / periodDays;
 
@@ -521,9 +525,9 @@ class StatementPdfService {
       trailing: pw.Row(
         mainAxisSize: pw.MainAxisSize.min,
         children: [
-          _legend(_green, 'Income'),
-          pw.SizedBox(width: 11),
           _legend(PdfColor.fromInt(0xFFFF6B6B), 'Expense'),
+          pw.SizedBox(width: 11),
+          _legend(_green, 'Income (right scale)'),
         ],
       ),
       child: _lineChart(
@@ -1401,15 +1405,23 @@ class StatementPdfService {
       incomeBuckets[index] += item.amount;
     }
 
-    final maxValue = [
-      ...incomeBuckets,
-      ...expenseBuckets,
-    ].fold<double>(
+    final expenseMax = expenseBuckets.fold<double>(
+      0,
+      (max, value) => value > max ? value : max,
+    );
+    final incomeMax = incomeBuckets.fold<double>(
       0,
       (max, value) => value > max ? value : max,
     );
 
-    final chartMax = _niceChartMax(maxValue);
+    // Expense is the primary chart scale. Income uses a right-side scale so
+    // a large salary cannot flatten the spending trend at zero.
+    final chartMax = _niceChartMax(
+      expenseMax > 0 ? expenseMax : incomeMax,
+    );
+    final incomeScale = expenseMax > 0 && incomeMax > 0
+        ? chartMax / incomeMax
+        : 1.0;
 
     final xLabels = List.generate(
       bucketCount,
@@ -1457,6 +1469,23 @@ class StatementPdfService {
           width: .4,
         ),
       ),
+      right: expenseMax > 0 && incomeMax > 0
+          ? pw.FixedAxis<double>(
+              [
+                0,
+                incomeMax / 2,
+                incomeMax,
+              ],
+              format: _compactChartNumber,
+              textStyle: pw.TextStyle(
+                fontSize: 5.4,
+                color: _green,
+              ),
+              divisions: false,
+              color: _green,
+              width: .4,
+            )
+          : null,
       datasets: [
         pw.LineDataSet<pw.PointChartValue>(
           data: [
@@ -1467,17 +1496,17 @@ class StatementPdfService {
             )
               pw.PointChartValue(
                 index.toDouble(),
-                incomeBuckets[index],
+                incomeBuckets[index] * incomeScale,
               ),
           ],
           color: _green,
           lineColor: _green,
-          lineWidth: 1.6,
-          pointSize: 1.7,
+          lineWidth: 1.2,
+          pointSize: 1.3,
           isCurved: true,
-          drawSurface: true,
+          drawSurface: false,
           surfaceColor: _green,
-          surfaceOpacity: .10,
+          surfaceOpacity: .04,
         ),
         pw.LineDataSet<pw.PointChartValue>(
           data: [
@@ -1493,8 +1522,8 @@ class StatementPdfService {
           ],
           color: PdfColor.fromInt(0xFFFF6B6B),
           lineColor: PdfColor.fromInt(0xFFFF6B6B),
-          lineWidth: 1.5,
-          pointSize: 1.6,
+          lineWidth: 2.3,
+          pointSize: 2.2,
           isCurved: true,
           drawSurface: true,
           surfaceColor: PdfColor.fromInt(0xFFFF6B6B),

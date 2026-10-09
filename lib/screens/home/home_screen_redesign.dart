@@ -33,13 +33,19 @@ class HomeScreen extends StatelessWidget {
     return 'Good Evening';
   }
 
-  RecurringExpense? _nextRecurring(List<RecurringExpense> items) {
+  RecurringExpense? _nextRecurring(
+    List<RecurringExpense> items,
+    ExpenseProvider provider,
+  ) {
     if (items.isEmpty) return null;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     RecurringExpense? next;
     var shortest = 9999;
     for (final item in items) {
+      // Do not suggest a recurring payment again after it was paid this month.
+      if (provider.isRecurringPaid(item)) continue;
+
       final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
       final day = item.dueDay > daysInMonth ? daysInMonth : item.dueDay;
       var due = DateTime(now.year, now.month, day);
@@ -70,7 +76,7 @@ class HomeScreen extends StatelessWidget {
     final currency = settings.currency;
     final recentExpenses = provider.expenses.take(3).toList();
     final recurring = provider.recurringExpenses.where((item) => item.active).toList();
-    final nextRecurring = _nextRecurring(recurring);
+    final nextRecurring = _nextRecurring(recurring, provider);
     final recurringTotal = recurring.fold<double>(0, (sum, item) => sum + item.amount);
 
     return SafeArea(

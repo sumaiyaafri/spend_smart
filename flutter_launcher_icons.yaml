@@ -1,0 +1,4 @@
+android: true
+ios: false
+image_path: assets/app_icon/spend-smart-icon.png
+min_sdk_android: 21

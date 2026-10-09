@@ -28,8 +28,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   String selectedCategory = 'Food & Dining';
   DateTime selectedDate = DateTime.now();
   bool isSaving = false;
-  // Tags are currently presentation-only because Expense has no tags field yet.
-  final tags = <String>['office', 'friends'];
 
   @override
   void initState() {
@@ -164,12 +162,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     _dateField(),
                     const SizedBox(height: 12),
                     _fieldLabel('Notes (optional)'),
-                    _textField(controller: noteController, hint: 'With friends', maxLines: 1),
-                    const SizedBox(height: 12),
-                    _fieldLabel('Tags (optional)'),
-                    _tagsField(),
-                    const SizedBox(height: 12),
-                    _receiptSection(),
+                    _textField(controller: noteController, hint: 'With friends', minLines: 3, maxLines: 5),
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 44,
@@ -214,6 +207,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     required TextEditingController controller,
     required String hint,
     String? prefix,
+    int? minLines,
     int maxLines = 1,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
@@ -221,6 +215,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      minLines: minLines,
       maxLines: maxLines,
       validator: validator,
       decoration: InputDecoration(
@@ -251,8 +246,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 7),
-                    decoration: BoxDecoration(color: const Color(0xFFEAF2F0), borderRadius: BorderRadius.circular(8)),
-                    child: Center(child: Text('$amount', style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600))),
+                    decoration: BoxDecoration(color: context.mutedSurfaceColor, borderRadius: BorderRadius.circular(8)),
+                    child: Center(child: Text('$amount', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: context.primaryTextColor))),
                   ),
                 ),
               ),
@@ -300,48 +295,4 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     );
   }
 
-  Widget _tagsField() {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        ...tags.map((tag) => _tagChip(tag)),
-        InkWell(
-          onTap: () => setState(() => tags.add('tag ${tags.length + 1}')),
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-              decoration: BoxDecoration(color: context.fieldColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: context.outlineColor)),
-            child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.add_rounded, size: 13, color: AppColors.primary), SizedBox(width: 3), Text('Add', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700))]),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _tagChip(String tag) {
-    return Container(
-      padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
-      decoration: BoxDecoration(color: const Color(0xFFE2F1EC), borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        onTap: () => setState(() => tags.remove(tag)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [Text(tag, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700)), const SizedBox(width: 4), const Icon(Icons.close_rounded, size: 12)]),
-      ),
-    );
-  }
-
-  Widget _receiptSection() {
-    return InkWell(
-      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Receipt attachment coming soon'))),
-      borderRadius: BorderRadius.circular(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [Icon(Icons.camera_alt_outlined, size: 15, color: context.secondaryTextColor), const SizedBox(width: 5), Text('Add Receipt Photo', style: TextStyle(fontSize: 10, color: context.secondaryTextColor, fontWeight: FontWeight.w600))]),
-          const SizedBox(height: 7),
-          Row(children: [Container(width: 45, height: 45, decoration: BoxDecoration(color: context.mutedSurfaceColor, borderRadius: BorderRadius.circular(8)), child: Icon(Icons.photo_camera_back_outlined, size: 20, color: context.secondaryTextColor)), const SizedBox(width: 8), Container(width: 45, height: 45, decoration: BoxDecoration(color: context.softGreenColor, borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.add_rounded, color: AppColors.primary))]),
-        ],
-      ),
-    );
-  }
 }

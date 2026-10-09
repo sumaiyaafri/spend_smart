@@ -25,7 +25,6 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   String selectedSource = 'Salary';
   DateTime selectedDate = DateTime.now();
   bool isSaving = false;
-  final tags = <String>['work'];
 
   @override
   void initState() {
@@ -150,12 +149,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                     _dateField(),
                     const SizedBox(height: 12),
                     _label('Notes (optional)'),
-                    _textField(controller: noteController, hint: 'Monthly salary', maxLines: 1),
-                    const SizedBox(height: 12),
-                    _label('Tags (optional)'),
-                    _tagsField(),
-                    const SizedBox(height: 14),
-                    _attachmentSection(),
+                    _textField(controller: noteController, hint: 'Monthly salary', minLines: 3, maxLines: 5),
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 44,
@@ -197,6 +191,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
     required TextEditingController controller,
     required String hint,
     String? prefix,
+    int? minLines,
     int maxLines = 1,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
@@ -204,6 +199,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      minLines: minLines,
       maxLines: maxLines,
       validator: validator,
       decoration: InputDecoration(
@@ -235,8 +231,8 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 7),
-                    decoration: BoxDecoration(color: const Color(0xFFEAF2F0), borderRadius: BorderRadius.circular(8)),
-                    child: Center(child: Text(value.$2, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600))),
+                    decoration: BoxDecoration(color: context.mutedSurfaceColor, borderRadius: BorderRadius.circular(8)),
+                    child: Center(child: Text(value.$2, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: context.primaryTextColor))),
                   ),
                 ),
               ),
@@ -267,11 +263,22 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
   }
 
   Widget _sourceIcon(String source) {
+    final (icon, color) = switch (source) {
+      'Salary' => (Icons.account_balance_wallet_rounded, const Color(0xFF3B82D0)),
+      'Bonus' => (Icons.emoji_events_rounded, const Color(0xFFE79A28)),
+      'Gift' => (Icons.card_giftcard_rounded, const Color(0xFFE85B9A)),
+      'Freelance' => (Icons.work_rounded, const Color(0xFF8B72F6)),
+      _ => (Icons.payments_rounded, AppColors.primary),
+    };
+
     return Container(
       width: 34,
       height: 34,
-      decoration: BoxDecoration(color: const Color(0xFFE6F0FF), borderRadius: BorderRadius.circular(10)),
-      child: Icon(source == 'Salary' ? Icons.account_balance_wallet_rounded : Icons.payments_rounded, size: 18, color: const Color(0xFF3B82D0)),
+      decoration: BoxDecoration(
+        color: Color.lerp(context.fieldColor, color, context.isDarkMode ? .3 : .12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, size: 18, color: color),
     );
   }
 
@@ -293,41 +300,4 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
     );
   }
 
-  Widget _tagsField() {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        ...tags.map((tag) => Container(
-              padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
-              decoration: BoxDecoration(color: const Color(0xFFE2F1EC), borderRadius: BorderRadius.circular(20)),
-              child: InkWell(onTap: () => setState(() => tags.remove(tag)), child: Row(mainAxisSize: MainAxisSize.min, children: [Text(tag, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700)), const SizedBox(width: 4), const Icon(Icons.close_rounded, size: 12)])),
-            )),
-        InkWell(
-          onTap: () => setState(() => tags.add('tag ${tags.length + 1}')),
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-              decoration: BoxDecoration(color: context.fieldColor, borderRadius: BorderRadius.circular(20), border: Border.all(color: context.outlineColor)),
-            child: const Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.add_rounded, size: 13, color: AppColors.primary), SizedBox(width: 3), Text('Add', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700))]),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _attachmentSection() {
-    return InkWell(
-      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attachment support coming soon'))),
-      borderRadius: BorderRadius.circular(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [Icon(Icons.watch_later_outlined, size: 15, color: context.secondaryTextColor), const SizedBox(width: 5), Text('Add Attachment', style: TextStyle(fontSize: 10, color: context.secondaryTextColor, fontWeight: FontWeight.w600))]),
-          const SizedBox(height: 7),
-          Row(children: [Container(width: 45, height: 45, decoration: BoxDecoration(color: const Color(0xFFFFF1D9), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.description_outlined, size: 20, color: AppColors.orange)), const SizedBox(width: 8), Container(width: 45, height: 45, decoration: BoxDecoration(color: const Color(0xFFEAF3F0), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.add_rounded, color: AppColors.primary))]),
-        ],
-      ),
-    );
-  }
 }

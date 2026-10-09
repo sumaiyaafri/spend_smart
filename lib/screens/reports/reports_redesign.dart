@@ -127,11 +127,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _overview(ExpenseProvider provider, List<Expense> expenses, Map<String, double> categories, double total, double income, String currency) {
     final settings = context.watch<SettingsProvider>();
-    final daysInMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 0).day;
+    final elapsedDays = AppDateUtils.elapsedDaysInRange(
+      DateTime(selectedMonth.year, selectedMonth.month, 1),
+      DateTime(selectedMonth.year, selectedMonth.month + 1, 0),
+    );
     final dayTotals = _dayTotals(expenses);
     final highest = dayTotals.entries.isEmpty ? null : (dayTotals.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first;
     final daysWithSpending = dayTotals.length;
-    final dailyAverage = daysWithSpending == 0 ? 0.0 : total / daysWithSpending;
+    final dailyAverage = elapsedDays == 0 ? 0.0 : total / elapsedDays;
     final topCategory = categories.entries.isEmpty ? null : (categories.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first;
 
     return Column(
@@ -146,9 +149,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         const SizedBox(height: 5),
         _weeklyChart(expenses, currency),
         const SizedBox(height: 10),
-        Row(children: [Expanded(child: _statCard('Top Category', topCategory?.key ?? 'No data', topCategory == null ? '-' : CurrencyUtils.format(topCategory.value, currency: currency), Icons.category_rounded, onTap: topCategory == null ? null : () => setState(() => selectedTab = 1))), const SizedBox(width: 8), Expanded(child: _statCard('Daily Average', CurrencyUtils.format(dailyAverage, currency: currency), '$daysWithSpending spending days', Icons.trending_up_rounded))]),
+        Row(children: [Expanded(child: _statCard('Top Category', topCategory?.key ?? 'No data', topCategory == null ? '-' : CurrencyUtils.format(topCategory.value, currency: currency), Icons.category_rounded, onTap: topCategory == null ? null : () => setState(() => selectedTab = 1))), const SizedBox(width: 8), Expanded(child: _statCard('Daily Average', CurrencyUtils.format(dailyAverage, currency: currency), '$elapsedDays elapsed days', Icons.trending_up_rounded))]),
         const SizedBox(height: 8),
-        Row(children: [Expanded(child: _statCard('Highest Day', highest == null ? '-' : AppDateUtils.formatDate(DateTime(selectedMonth.year, selectedMonth.month, highest.key)), highest == null ? '-' : CurrencyUtils.format(highest.value, currency: currency), Icons.calendar_today_rounded)), const SizedBox(width: 8), Expanded(child: _statCard('No-spend Days', '${daysInMonth - daysWithSpending} days', 'This month', Icons.event_available_rounded))]),
+        Row(children: [Expanded(child: _statCard('Highest Day', highest == null ? '-' : AppDateUtils.formatDate(DateTime(selectedMonth.year, selectedMonth.month, highest.key)), highest == null ? '-' : CurrencyUtils.format(highest.value, currency: currency), Icons.calendar_today_rounded)), const SizedBox(width: 8), Expanded(child: _statCard('No-spend Days', '${elapsedDays - daysWithSpending} days', 'Elapsed days', Icons.event_available_rounded))]),
         const SizedBox(height: 10),
         _insightCard(topCategory, highest, total, income, currency),
         if (expenses.isEmpty) ...[const SizedBox(height: 12), const EmptyState(title: 'No expenses this month', message: 'Add expenses to unlock more insights.', icon: Icons.bar_chart_rounded)],
@@ -302,8 +305,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final spendingByDay = _dailyExpenseTotals(monthExpenses);
     final incomeByDay = _dailyIncomeTotals(monthIncomes);
     final daysOverBudget = settings.dailyLimit <= 0 ? 0 : spendingByDay.where((value) => value > settings.dailyLimit).length;
-    final spendingDays = spendingByDay.where((value) => value > 0).length;
-    final average = spendingDays == 0 ? 0.0 : spendingByDay.fold<double>(0, (sum, value) => sum + value) / spendingDays;
+    final elapsedDays = AppDateUtils.elapsedDaysInRange(
+      DateTime(selectedMonth.year, selectedMonth.month, 1),
+      DateTime(selectedMonth.year, selectedMonth.month + 1, 0),
+    );
+    final average = elapsedDays == 0 ? 0.0 : spendingByDay.fold<double>(0, (sum, value) => sum + value) / elapsedDays;
     return Column(
       children: [
         _incomeCard(income, provider.totalIncome, provider.balance, currency),
