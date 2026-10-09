@@ -8,6 +8,7 @@ import 'budget_limits_screen.dart';
 import 'backup_restore_screen.dart';
 import 'notifications_screen.dart';
 import 'recurring_expenses_screen.dart';
+import 'statement_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -104,6 +105,16 @@ class SettingsScreen extends StatelessWidget {
                 subtitle: 'Manage monthly payments and reminders',
                 trailing: Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringExpensesScreen())),
+              ),
+              _divider(context),
+              _settingRow(
+                context,
+                icon: Icons.receipt_long_rounded,
+                color: AppColors.blue,
+                title: 'Statement',
+                subtitle: 'View and export income & expense statements',
+                trailing: Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StatementScreen())),
               ),
             ],
           ),
