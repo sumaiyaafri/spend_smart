@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../data/models/recurring_expense.dart';
+
 class NotificationService {
   NotificationService._();
 
@@ -12,6 +14,7 @@ class NotificationService {
   static const int _dailyReminderId = 1001;
   static const int _dailyBudgetAlertId = 2001;
   static const int _monthlyBudgetAlertId = 2002;
+  static const int _recurringNotificationBaseId = 3000;
   static const String _channelId = 'spend_smart_alerts';
 
   final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
@@ -83,6 +86,73 @@ class NotificationService {
       notificationDetails: _notificationDetails(),
       payload: 'test_notification',
     );
+  }
+
+  Future<void> scheduleRecurringExpense(RecurringExpense recurring) async {
+    final id = recurring.id;
+    if (id == null) return;
+    await initialize();
+    final enabled = await _prefs.getBool('recurring_expense_reminder') ?? true;
+    if (!enabled) return;
+    final reminderId = _recurringNotificationBaseId + id * 2;
+    final dueId = reminderId + 1;
+    await _plugin.cancel(id: reminderId);
+    await _plugin.cancel(id: dueId);
+
+    final now = tz.TZDateTime.now(tz.local);
+    final due = _nextMonthlyDate(recurring.dueDay, now);
+    final reminderBase = due.subtract(const Duration(days: 3)).isAfter(now)
+        ? due
+        : _nextMonthlyDate(recurring.dueDay, due.add(const Duration(days: 1)));
+    final nextReminder = reminderBase.subtract(const Duration(days: 3));
+
+    await _plugin.zonedSchedule(
+      id: reminderId,
+      title: 'Upcoming recurring payment',
+      body: '${recurring.title} of ৳${recurring.amount.toStringAsFixed(0)} is due in 3 days.',
+      scheduledDate: nextReminder,
+      notificationDetails: _notificationDetails(),
+      androidScheduleMode: AndroidScheduleMode.inexact,
+      matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+      payload: 'recurring_reminder:${recurring.id}',
+    );
+    await _plugin.zonedSchedule(
+      id: dueId,
+      title: 'Recurring payment due today',
+      body: 'Did you pay ${recurring.title}? Open Spend Smart to record it.',
+      scheduledDate: due,
+      notificationDetails: _notificationDetails(),
+      androidScheduleMode: AndroidScheduleMode.inexact,
+      matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+      payload: 'recurring_due:${recurring.id}',
+    );
+  }
+
+  Future<void> cancelRecurringExpense(int id) async {
+    await initialize();
+    final reminderId = _recurringNotificationBaseId + id * 2;
+    await _plugin.cancel(id: reminderId);
+    await _plugin.cancel(id: reminderId + 1);
+  }
+
+  tz.TZDateTime _nextMonthlyDate(int day, tz.TZDateTime from) {
+    var year = from.year;
+    var month = from.month;
+    var candidate = _monthlyDate(year, month, day);
+    if (!candidate.isAfter(from)) {
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+      }
+      candidate = _monthlyDate(year, month, day);
+    }
+    return candidate;
+  }
+
+  tz.TZDateTime _monthlyDate(int year, int month, int day) {
+    final daysInMonth = tz.TZDateTime(tz.local, year, month + 1, 0).day;
+    return tz.TZDateTime(tz.local, year, month, day.clamp(1, daysInMonth).toInt(), 9);
   }
 
   Future<List<PendingNotificationRequest>> pendingNotifications() async {

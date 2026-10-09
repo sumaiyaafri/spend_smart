@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/currency_utils.dart';
 import '../../core/utils/date_utils.dart';
 import '../../data/models/expense.dart';
+import '../../data/models/recurring_expense.dart';
 import '../../providers/expense_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/category_icon.dart';
@@ -16,6 +17,7 @@ import '../income/income_screen_redesign.dart';
 import '../settings/budget_limits_screen.dart';
 import '../settings/backup_restore_screen.dart';
 import '../settings/notifications_screen.dart';
+import '../settings/recurring_expenses_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onSeeAll;
@@ -31,12 +33,45 @@ class HomeScreen extends StatelessWidget {
     return 'Good Evening';
   }
 
+  RecurringExpense? _nextRecurring(List<RecurringExpense> items) {
+    if (items.isEmpty) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    RecurringExpense? next;
+    var shortest = 9999;
+    for (final item in items) {
+      final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+      final day = item.dueDay > daysInMonth ? daysInMonth : item.dueDay;
+      var due = DateTime(now.year, now.month, day);
+      if (due.isBefore(today)) due = DateTime(now.year, now.month + 1, item.dueDay);
+      final days = due.difference(today).inDays;
+      if (days < shortest) {
+        shortest = days;
+        next = item;
+      }
+    }
+    return next;
+  }
+
+  String _ordinal(int day) {
+    if (day >= 11 && day <= 13) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     final settings = context.watch<SettingsProvider>();
     final currency = settings.currency;
     final recentExpenses = provider.expenses.take(3).toList();
+    final recurring = provider.recurringExpenses.where((item) => item.active).toList();
+    final nextRecurring = _nextRecurring(recurring);
+    final recurringTotal = recurring.fold<double>(0, (sum, item) => sum + item.amount);
 
     return SafeArea(
       bottom: false,
@@ -84,6 +119,16 @@ class HomeScreen extends StatelessWidget {
               balance: CurrencyUtils.format(provider.balance, currency: currency),
               onManage: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const IncomeScreen())),
             ),
+            if (recurring.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              _RecurringSummaryCard(
+                count: recurring.length,
+                monthlyTotal: CurrencyUtils.format(recurringTotal, currency: currency),
+                nextTitle: nextRecurring?.title ?? 'No upcoming payment',
+                nextDue: nextRecurring == null ? '-' : '${nextRecurring.dueDay}${_ordinal(nextRecurring.dueDay)} of this month',
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringExpensesScreen())),
+              ),
+            ],
             const SizedBox(height: 14),
             _buildQuickActions(context),
             const SizedBox(height: 16),
@@ -307,6 +352,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               _moreTile(sheetContext, Icons.track_changes_rounded, 'Budget & Limits', 'Set monthly budget and daily limit', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetLimitsScreen()))),
+              _moreTile(sheetContext, Icons.event_repeat_rounded, 'Recurring Expenses', 'Manage monthly payments and reminders', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringExpensesScreen()))),
               _moreTile(sheetContext, Icons.add_card_rounded, 'Add Income', 'Record salary, bonus or other income', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddIncomeScreen()))),
               _moreTile(sheetContext, Icons.account_balance_wallet_rounded, 'Income & Balance', 'Review all money received', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const IncomeScreen()))),
               _moreTile(sheetContext, Icons.insights_rounded, 'Smart Insights', 'See trends and spending insights', onOpenReports),
@@ -622,6 +668,49 @@ class _IncomeOverviewCard extends StatelessWidget {
   }
 }
 
+class _RecurringSummaryCard extends StatelessWidget {
+  final int count;
+  final String monthlyTotal;
+  final String nextTitle;
+  final String nextDue;
+  final VoidCallback onTap;
+
+  const _RecurringSummaryCard({required this.count, required this.monthlyTotal, required this.nextTitle, required this.nextDue, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final secondary = Theme.of(context).colorScheme.onSurfaceVariant;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(13, 12, 13, 11),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(18), border: Border.all(color: context.outlineColor)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Container(width: 34, height: 34, decoration: BoxDecoration(color: AppColors.orange.withValues(alpha: .12), borderRadius: BorderRadius.circular(11)), child: const Icon(Icons.event_repeat_rounded, size: 18, color: AppColors.orange)),
+            const SizedBox(width: 9),
+            const Expanded(child: Text('Recurring payments', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800))),
+            Icon(Icons.chevron_right_rounded, size: 19, color: secondary),
+          ]),
+          const SizedBox(height: 10),
+          Row(children: [
+            Expanded(child: _stat('Monthly total', monthlyTotal, secondary)),
+            Container(width: 1, height: 27, color: context.outlineColor),
+            Expanded(child: _stat('$count active', 'scheduled', secondary)),
+          ]),
+          const SizedBox(height: 9),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7), decoration: BoxDecoration(color: context.mutedSurfaceColor, borderRadius: BorderRadius.circular(10)), child: Row(children: [Icon(Icons.calendar_month_rounded, size: 14, color: AppColors.primary), const SizedBox(width: 6), Expanded(child: Text('Next: $nextTitle', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700))), Text(nextDue, style: TextStyle(fontSize: 8, color: secondary, fontWeight: FontWeight.w600))])),
+        ]),
+      ),
+    );
+  }
+
+  Widget _stat(String label, String value, Color secondary) {
+    return Column(children: [Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800)), const SizedBox(height: 2), Text(label, style: TextStyle(fontSize: 8, color: secondary))]);
+  }
+}
+
 class _ProgressBar extends StatelessWidget {
   final double progress;
   final Color foreground;
@@ -894,7 +983,13 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
         final selected = selectedCategory == category.$2;
         return Expanded(
           child: GestureDetector(
-            onTap: () => setState(() => selectedCategory = category.$2),
+            onTap: () async {
+              if (category.$2 == 'Others') {
+                await _showMoreCategories();
+              } else if (mounted) {
+                setState(() => selectedCategory = category.$2);
+              }
+            },
             child: Column(
               children: [
                 AnimatedContainer(
@@ -912,6 +1007,40 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
         );
       }).toList(),
     );
+  }
+
+  Future<void> _showMoreCategories() async {
+    const options = [
+      ('Health', Icons.favorite_rounded, AppColors.red),
+      ('Education', Icons.school_rounded, AppColors.blue),
+      ('Entertainment', Icons.movie_rounded, AppColors.purple),
+      ('Gifts', Icons.card_giftcard_rounded, AppColors.orange),
+      ('Travel', Icons.flight_takeoff_rounded, AppColors.primary),
+      ('Others', Icons.more_horiz_rounded, AppColors.textSecondary),
+    ];
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Choose category', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: options.map((option) => InkWell(
+                    onTap: () => Navigator.pop(sheetContext, option.$1),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(width: 92, padding: const EdgeInsets.symmetric(vertical: 10), decoration: BoxDecoration(color: option.$3.withValues(alpha: .10), borderRadius: BorderRadius.circular(12)), child: Column(children: [Icon(option.$2, size: 19, color: option.$3), const SizedBox(height: 4), Text(option.$1, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600))])),
+                  )).toList(),
+            ),
+          ]),
+        ),
+      ),
+    );
+    if (selected != null && mounted) setState(() => selectedCategory = selected);
   }
 
   Widget _recentRow(Expense expense) {
@@ -940,9 +1069,19 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
 
   Future<void> _save() async {
     final amount = double.tryParse(amountController.text.trim());
-    if (amount == null || amount <= 0) return;
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter a valid amount first')));
+      return;
+    }
     setState(() => saving = true);
-    await widget.onAdd(Expense(title: selectedTitle, amount: amount, category: selectedCategory, date: DateTime.now()));
-    if (mounted) Navigator.pop(context, true);
+    try {
+      await widget.onAdd(Expense(title: selectedTitle, amount: amount, category: selectedCategory, date: DateTime.now()));
+      if (mounted) Navigator.pop(context, true);
+    } catch (error) {
+      if (mounted) {
+        setState(() => saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not add expense: $error')));
+      }
+    }
   }
 }

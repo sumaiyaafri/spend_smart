@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/models/expense.dart';
 import '../data/models/income.dart';
+import '../data/models/recurring_expense.dart';
 import '../data/repositories/expense_repository.dart';
 import '../services/notification_service.dart';
 
@@ -13,7 +14,10 @@ class ExpenseProvider extends ChangeNotifier {
 
   List<Expense> _expenses = [];
   List<Income> _incomes = [];
+  List<RecurringExpense> _recurringExpenses = [];
+  Set<String> _recurringPaymentKeys = {};
   List<Income> get incomes => List.unmodifiable(_incomes);
+  List<RecurringExpense> get recurringExpenses => List.unmodifiable(_recurringExpenses);
   double get totalIncome => _incomes.fold(0, (sum, item) => sum + item.amount);
   double get totalExpenses =>
       _expenses.fold(0, (sum, item) => sum + item.amount);
@@ -46,6 +50,9 @@ class ExpenseProvider extends ChangeNotifier {
     try {
       _expenses = await repository.getExpenses();
       _incomes = await repository.getIncomes();
+      _recurringExpenses = await repository.getRecurringExpenses();
+      final now = DateTime.now();
+      _recurringPaymentKeys = await repository.getRecurringPaymentKeys('${now.year}-${now.month.toString().padLeft(2, '0')}');
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -76,6 +83,43 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> saveRecurringExpense(RecurringExpense recurring) async {
+    await repository.saveRecurringExpense(recurring);
+    await loadExpenses();
+    RecurringExpense? saved;
+    for (final item in _recurringExpenses) {
+      final matches = recurring.id != null
+          ? item.id == recurring.id
+          : item.title == recurring.title && item.amount == recurring.amount && item.dueDay == recurring.dueDay;
+      if (matches) {
+        saved = item;
+        break;
+      }
+    }
+    if (saved != null) await NotificationService.instance.scheduleRecurringExpense(saved);
+  }
+
+  Future<void> deleteRecurringExpense(RecurringExpense recurring) async {
+    final id = recurring.id;
+    if (id == null) return;
+    await repository.deleteRecurringExpense(id);
+    await loadExpenses();
+    await NotificationService.instance.cancelRecurringExpense(id);
+  }
+
+  bool isRecurringPaid(RecurringExpense recurring) {
+    return _recurringPaymentKeys.contains('${recurring.id}');
+  }
+
+  List<RecurringExpense> recurringDueToday(DateTime date) {
+    return _recurringExpenses.where((item) => item.active && item.dueDay == date.day && !isRecurringPaid(item)).toList();
+  }
+
+  Future<void> markRecurringPaid(RecurringExpense recurring, DateTime paidAt) async {
+    await repository.recordRecurringPayment(recurring: recurring, paidAt: paidAt);
+    await loadExpenses();
+  }
+
   Future<void> restoreBackup({required List<Expense> expenses, required List<Income> incomes}) async {
     await repository.restoreBackup(expenses: expenses, incomes: incomes);
     await loadExpenses();
@@ -99,7 +143,8 @@ class ExpenseProvider extends ChangeNotifier {
     return _expenses.where((expense) {
       return expense.date.year == now.year &&
           expense.date.month == now.month &&
-          expense.date.day == now.day;
+          expense.date.day == now.day &&
+          !expense.isRecurring;
     }).toList();
   }
 
@@ -115,6 +160,7 @@ class ExpenseProvider extends ChangeNotifier {
 
     return _expenses.where((expense) {
       return expense.date.year == now.year && expense.date.month == now.month;
+
     }).toList();
   }
 

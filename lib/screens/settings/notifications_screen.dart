@@ -26,10 +26,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _prepare() async {
     final settings = context.read<SettingsProvider>();
+    final expenseProvider = context.read<ExpenseProvider>();
     final service = NotificationService.instance;
     await service.initialize(requestPermission: true);
     if (settings.dailyReminder) {
       await service.syncDailyReminder(enabled: true, time: settings.notificationTime);
+    }
+    if (settings.recurringExpenseReminder) {
+      for (final recurring in expenseProvider.recurringExpenses) {
+        await service.scheduleRecurringExpense(recurring);
+      }
     }
     final permission = await service.areNotificationsEnabled();
     final pending = await service.pendingNotifications();
@@ -73,6 +79,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 title: 'Reminder time',
                 subtitle: _formatTime(settings.notificationTime),
                 onTap: settings.dailyReminder ? () => _pickTime(settings) : null,
+              ),
+            ]),
+            const SizedBox(height: 16),
+            _sectionTitle('Recurring payments'),
+            const SizedBox(height: 7),
+            _card([
+              _switchRow(
+                icon: Icons.event_repeat_rounded,
+                color: AppColors.primary,
+                title: 'Recurring payment reminders',
+                subtitle: 'Notify 3 days before and on the payment date',
+                value: settings.recurringExpenseReminder,
+                onChanged: _toggleRecurringReminder,
               ),
             ]),
             const SizedBox(height: 16),
@@ -139,7 +158,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _heroCard(SettingsProvider settings) {
-    final enabled = settings.dailyReminder || settings.dailyLimitAlert || settings.monthlyBudgetAlert;
+    final enabled = settings.dailyReminder || settings.recurringExpenseReminder || settings.dailyLimitAlert || settings.monthlyBudgetAlert;
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -210,6 +229,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (value) await _requestPermission();
     if (!mounted) return;
     await context.read<SettingsProvider>().setDailyReminder(value);
+    await _refreshPending();
+  }
+
+  Future<void> _toggleRecurringReminder(bool value) async {
+    if (value) await _requestPermission();
+    if (!mounted) return;
+    final settings = context.read<SettingsProvider>();
+    final provider = context.read<ExpenseProvider>();
+    await settings.setRecurringExpenseReminder(value);
+    for (final recurring in provider.recurringExpenses) {
+      if (value) {
+        await NotificationService.instance.scheduleRecurringExpense(recurring);
+      } else if (recurring.id != null) {
+        await NotificationService.instance.cancelRecurringExpense(recurring.id!);
+      }
+    }
     await _refreshPending();
   }
 

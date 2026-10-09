@@ -5,6 +5,7 @@ class Expense {
   final String category;
   final DateTime date;
   final String? note;
+  final bool isRecurring;
   final DateTime createdAt;
 
   Expense({
@@ -14,6 +15,7 @@ class Expense {
     required this.category,
     required this.date,
     this.note,
+    this.isRecurring = false,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -25,6 +27,7 @@ class Expense {
       'category': category,
       'date': date.toIso8601String(),
       'note': note,
+      'is_recurring': isRecurring ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -37,6 +40,7 @@ class Expense {
       category: map['category'],
       date: DateTime.parse(map['date']),
       note: map['note'],
+      isRecurring: (map['is_recurring'] as num? ?? 0) == 1,
       createdAt: DateTime.parse(map['created_at']),
     );
   }
@@ -48,6 +52,7 @@ class Expense {
     String? category,
     DateTime? date,
     String? note,
+    bool? isRecurring,
   }) {
     return Expense(
       id: id ?? this.id,
@@ -56,6 +61,7 @@ class Expense {
       category: category ?? this.category,
       date: date ?? this.date,
       note: note ?? this.note,
+      isRecurring: isRecurring ?? this.isRecurring,
       createdAt: createdAt,
     );
   }

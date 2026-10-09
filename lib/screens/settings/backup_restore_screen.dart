@@ -11,7 +11,10 @@ import '../../data/models/income.dart';
 import '../../providers/expense_provider.dart';
 
 class BackupRestoreScreen extends StatefulWidget {
-  const BackupRestoreScreen({super.key});
+  final bool showExport;
+  final bool showRestore;
+
+  const BackupRestoreScreen({super.key, this.showExport = true, this.showRestore = true});
 
   @override
   State<BackupRestoreScreen> createState() => _BackupRestoreScreenState();
@@ -35,23 +38,25 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 children: [
                   _introCard(),
                   const SizedBox(height: 14),
-                  _actionCard(
-                    icon: Icons.upload_rounded,
-                    color: AppColors.primary,
-                    title: 'Export your data',
-                    subtitle: '${provider.expenses.length} expenses • ${provider.incomes.length} income records',
-                    button: 'Export JSON',
-                    onTap: working ? null : _exportBackup,
-                  ),
-                  const SizedBox(height: 10),
-                  _actionCard(
-                    icon: Icons.download_rounded,
-                    color: AppColors.blue,
-                    title: 'Restore a backup',
-                    subtitle: 'Add records from a Spend Smart JSON backup',
-                    button: 'Choose file',
-                    onTap: working ? null : _restoreBackup,
-                  ),
+                  if (widget.showExport)
+                    _actionCard(
+                      icon: Icons.upload_rounded,
+                      color: AppColors.primary,
+                      title: 'Export your data',
+                      subtitle: '${provider.expenses.length} expenses • ${provider.incomes.length} income records',
+                      button: 'Export JSON',
+                      onTap: working ? null : _exportBackup,
+                    ),
+                  if (widget.showExport && widget.showRestore) const SizedBox(height: 10),
+                  if (widget.showRestore)
+                    _actionCard(
+                      icon: Icons.download_rounded,
+                      color: AppColors.blue,
+                      title: 'Restore a backup',
+                      subtitle: 'Add records from a Spend Smart JSON backup',
+                      button: 'Choose file',
+                      onTap: working ? null : _restoreBackup,
+                    ),
                   const SizedBox(height: 15),
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -71,7 +76,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
   Widget _topBar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 7, 20, 8),
-      child: Row(children: [IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 17)), const Expanded(child: Center(child: Text('Backup & Restore', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)))), const SizedBox(width: 48)]),
+      child: Row(children: [IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 17)), Expanded(child: Center(child: Text(widget.showExport && !widget.showRestore ? 'Export Data' : 'Backup & Restore', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)))), const SizedBox(width: 48)]),
     );
   }
 
@@ -79,7 +84,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF078B67), Color(0xFF04684E)]), borderRadius: BorderRadius.circular(18), boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: .16), blurRadius: 14, offset: const Offset(0, 6))]),
-      child: const Row(children: [Icon(Icons.shield_outlined, color: Colors.white, size: 28), SizedBox(width: 10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Your data stays yours', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)), SizedBox(height: 3), Text('Create a portable backup of your expenses and income.', style: TextStyle(color: Colors.white70, fontSize: 9))]))]),
+      child: Row(children: [const Icon(Icons.shield_outlined, color: Colors.white, size: 28), const SizedBox(width: 10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Your data stays yours', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(widget.showExport && !widget.showRestore ? 'Create a portable copy of your expenses and income.' : 'Restore records from a previous Spend Smart backup.', style: const TextStyle(color: Colors.white70, fontSize: 9))]))]),
     );
   }
 

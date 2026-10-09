@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../add_expense/add_expense_redesign.dart';
 import '../history/history_redesign.dart';
@@ -7,6 +8,8 @@ import '../reports/reports_redesign.dart';
 import '../settings/settings_redesign.dart';
 import '../income/add_income_redesign.dart';
 import '../../widgets/app_bottom_navigation.dart';
+import '../../providers/expense_provider.dart';
+import '../../providers/settings_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +20,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
+  bool _recurringPromptChecked = false;
   late final List<Widget> pages;
 
   @override
@@ -36,6 +40,11 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final expenseProvider = context.watch<ExpenseProvider>();
+    if (!expenseProvider.isLoading && !_recurringPromptChecked) {
+      _recurringPromptChecked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showRecurringPaymentPrompts(expenseProvider));
+    }
     return Scaffold(
       extendBody: true,
 
@@ -94,5 +103,33 @@ class _MainScreenState extends State<MainScreen> {
         onItemSelected: (index) => setState(() => currentIndex = index),
       ),
     );
+  }
+
+  Future<void> _showRecurringPaymentPrompts(ExpenseProvider provider) async {
+    if (!mounted) return;
+    if (!context.read<SettingsProvider>().recurringExpenseReminder) return;
+    final dueItems = provider.recurringDueToday(DateTime.now());
+    for (final item in dueItems) {
+      if (!mounted) return;
+      final shouldRecord = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('${item.title} is due today'),
+          content: Text('Did you pay ৳${item.amount.toStringAsFixed(0)} for this recurring expense?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Maybe later')),
+            FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Yes, paid')),
+          ],
+        ),
+      );
+      if (shouldRecord != true || !mounted) continue;
+      final paidDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(DateTime.now().year, DateTime.now().month, 1),
+        lastDate: DateTime.now(),
+      );
+      if (paidDate != null) await provider.markRecurringPaid(item, paidDate);
+    }
   }
 }

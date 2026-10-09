@@ -14,6 +14,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _dailyLimitAlert = true;
   bool _monthlyBudgetAlert = true;
   bool _dailyReminder = true;
+  bool _recurringExpenseReminder = true;
   TimeOfDay _notificationTime = const TimeOfDay(hour: 20, minute: 0);
 
   bool _onboardingCompleted = false;
@@ -34,6 +35,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get monthlyBudgetAlert => _monthlyBudgetAlert;
 
   bool get dailyReminder => _dailyReminder;
+  bool get recurringExpenseReminder => _recurringExpenseReminder;
 
   TimeOfDay get notificationTime => _notificationTime;
 
@@ -56,6 +58,7 @@ class SettingsProvider extends ChangeNotifier {
     final savedDailyAlert = await _prefs.getBool('daily_limit_alert');
     final savedMonthlyAlert = await _prefs.getBool('monthly_budget_alert');
     final savedDailyReminder = await _prefs.getBool('daily_reminder');
+    final savedRecurringReminder = await _prefs.getBool('recurring_expense_reminder');
     final savedNotificationHour = await _prefs.getInt('notification_hour');
     final savedNotificationMinute = await _prefs.getInt('notification_minute');
 
@@ -80,6 +83,7 @@ class SettingsProvider extends ChangeNotifier {
     _dailyLimitAlert = savedDailyAlert ?? true;
     _monthlyBudgetAlert = savedMonthlyAlert ?? true;
     _dailyReminder = savedDailyReminder ?? true;
+    _recurringExpenseReminder = savedRecurringReminder ?? true;
     _notificationTime = TimeOfDay(
       hour: savedNotificationHour ?? 20,
       minute: savedNotificationMinute ?? 0,
@@ -189,6 +193,12 @@ class SettingsProvider extends ChangeNotifier {
     _dailyReminder = enabled;
     await _prefs.setBool('daily_reminder', enabled);
     await NotificationService.instance.syncDailyReminder(enabled: enabled, time: _notificationTime);
+    notifyListeners();
+  }
+
+  Future<void> setRecurringExpenseReminder(bool enabled) async {
+    _recurringExpenseReminder = enabled;
+    await _prefs.setBool('recurring_expense_reminder', enabled);
     notifyListeners();
   }
 

@@ -7,6 +7,7 @@ import '../../widgets/app_page_header.dart';
 import 'budget_limits_screen.dart';
 import 'backup_restore_screen.dart';
 import 'notifications_screen.dart';
+import 'recurring_expenses_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -94,6 +95,16 @@ class SettingsScreen extends StatelessWidget {
                 trailing: Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetLimitsScreen())),
               ),
+              _divider(context),
+              _settingRow(
+                context,
+                icon: Icons.event_repeat_rounded,
+                color: AppColors.orange,
+                title: 'Recurring Expenses',
+                subtitle: 'Manage monthly payments and reminders',
+                trailing: Icon(Icons.chevron_right_rounded, size: 19, color: context.secondaryTextColor),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringExpensesScreen())),
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -102,9 +113,9 @@ class SettingsScreen extends StatelessWidget {
           _card(
             context,
             children: [
-              _settingRow(context, icon: Icons.cloud_upload_outlined, color: AppColors.blue, title: 'Backup & Restore', subtitle: 'Save or restore expenses and income', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen()))),
+              _settingRow(context, icon: Icons.cloud_upload_outlined, color: AppColors.blue, title: 'Backup & Restore', subtitle: 'Restore a previous Spend Smart backup', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen(showExport: false, showRestore: true)))),
               _divider(context),
-              _settingRow(context, icon: Icons.download_rounded, color: AppColors.primary, title: 'Export Data', subtitle: 'Create a portable JSON backup', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen()))),
+              _settingRow(context, icon: Icons.download_rounded, color: AppColors.primary, title: 'Export Data', subtitle: 'Create a portable JSON backup', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupRestoreScreen(showExport: true, showRestore: false)))),
             ],
           ),
           const SizedBox(height: 14),
